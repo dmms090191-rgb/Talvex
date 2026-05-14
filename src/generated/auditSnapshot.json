@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-05-13T17:16:42.371Z",
+  "anyCount": 0,
+  "anyOccurrences": [],
+  "unusedImportCount": 0,
+  "unusedImports": [],
+  "largeFileCount": 0,
+  "largeFiles": [],
+  "tscErrorCount": 0,
+  "tscErrors": [],
+  "eslintErrorCount": 0,
+  "eslintWarningCount": 0,
+  "eslintIssues": [],
+  "totalFilesAnalyzed": 294,
+  "totalLinesAnalyzed": 42075,
+  "totalOverflowLines": 0
+}
