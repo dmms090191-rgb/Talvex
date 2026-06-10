@@ -1,1 +1,0 @@
-ALTER TABLE site_templates ADD COLUMN IF NOT EXISTS config jsonb DEFAULT '{}'::jsonb;
