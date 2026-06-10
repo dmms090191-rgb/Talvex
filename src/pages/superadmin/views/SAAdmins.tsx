@@ -177,12 +177,12 @@ export default function SAAdmins({ onConnectAsAdmin, onOpenChat, cachedAdmins, r
   const actionsAdmin = actionsOpenId ? admins.find(a => a.id === actionsOpenId) : null;
 
   return (
-    <div className="p-4 md:p-8 space-y-6 w-full">
+    <div className="p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6 w-full">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
         <div>
-          <h2 className="text-xl font-bold" style={{ color: tokens.text.primary }}>Liste admins</h2>
-          <p className="text-xs mt-0.5" style={{ color: tokens.input.placeholder }}>{admins.length} admin{admins.length !== 1 ? 's' : ''}</p>
+          <h2 className="text-lg sm:text-xl font-bold" style={{ color: tokens.text.primary }}>Liste admins</h2>
+          <p className="text-[11px] sm:text-xs mt-0.5" style={{ color: tokens.input.placeholder }}>{admins.length} admin{admins.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {selectionMode ? (

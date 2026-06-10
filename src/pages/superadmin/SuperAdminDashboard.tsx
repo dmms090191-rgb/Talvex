@@ -248,7 +248,7 @@ function SuperAdminDashboardInner({ onLogout, onConnectAsAdmin }: SuperAdminDash
           />
         )}
 
-        <main ref={contentZoneRef} className={`flex-1 ${activeView === 'chat-admin' ? 'p-2 sm:p-3 md:p-4' : ''}`} style={{ minHeight: 0, overflow: activeView === 'chat-admin' ? 'hidden' : 'auto' }}>
+        <main ref={contentZoneRef} className={`flex-1 ${activeView === 'chat-admin' ? 'p-1.5 sm:p-2 md:p-3 lg:p-4' : ''}`} style={{ minHeight: 0, overflow: activeView === 'chat-admin' ? 'hidden' : 'auto' }}>
           {activeView === 'chat-admin' && (
             <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin" /></div>}>
               <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, height: '100%' }}>

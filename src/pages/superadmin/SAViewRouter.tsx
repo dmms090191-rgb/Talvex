@@ -71,7 +71,7 @@ export default function SAViewRouter({
     case 'dashboard': return <SADashboard onNavigate={handleNavigate} onNavigateToAudit={() => { setDocInitialTab('audit-technique'); setDocKey(k => k + 1); setActiveView('documentation-crm'); }} adminCount={cachedAdmins.length} adminsLoading={adminsRefreshing && cachedAdmins.length === 0} />;
     case 'admins': return <SAAdmins onConnectAsAdmin={handleConnectAsAdmin} onOpenChat={handleOpenChatAdmin} cachedAdmins={cachedAdmins} refreshing={adminsRefreshing} cachedError={adminsError} onRefresh={fetchAdminsCache} />;
     case 'chat-admin': return null;
-    case 'documentation-crm': return <div className="p-4 md:p-6 flex flex-col h-full min-h-0"><DocumentationCrm key={docKey} initialTab={docInitialTab} onInitialTabConsumed={() => setDocInitialTab(undefined)} /></div>;
+    case 'documentation-crm': return <div className="p-3 sm:p-4 md:p-6 flex flex-col h-full min-h-0"><DocumentationCrm key={docKey} initialTab={docInitialTab} onInitialTabConsumed={() => setDocInitialTab(undefined)} /></div>;
     case 'system': return <SystemPage />;
     case 'sauvegarde': return <SimulationProvider><SauvegardeRestauration /></SimulationProvider>;
     case 'mon-compte': return <SAMonCompte onNameChange={(fn, ln) => { setSaFirstName(fn); setSaLastName(ln); }} />;
@@ -89,7 +89,7 @@ export default function SAViewRouter({
     case 'themes': return <SAThemes />;
     case 'editeur-ia': return <EditeurIA />;
     case 'calquer-logo': return <SACalquerLogo />;
-    case 'tuto': return <div className="p-6"><p className="text-sm" style={{ color: 'inherit' }}>Tuto - Contenu a venir</p></div>;
+    case 'tuto': return <div className="p-4 sm:p-6"><p className="text-sm" style={{ color: 'inherit' }}>Tuto - Contenu a venir</p></div>;
     default: return <SADashboard onNavigate={handleNavigate} adminCount={cachedAdmins.length} adminsLoading={adminsRefreshing && cachedAdmins.length === 0} />;
   }
 }

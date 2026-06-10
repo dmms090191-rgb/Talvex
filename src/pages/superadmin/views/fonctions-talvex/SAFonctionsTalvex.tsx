@@ -202,8 +202,8 @@ export default function SAFonctionsTalvex() {
           </div>
         )}
       </div>
-      <div className="flex-1 flex min-h-0 px-4 md:px-6 pb-4 md:pb-6 gap-3">
-        <div className="hidden md:flex flex-col w-[260px] flex-shrink-0 rounded-xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${t.surface.secondary}, ${t.surface.secondary}80)`, border: `1px solid ${t.surface.border}`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 2px rgba(0,0,0,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
+      <div className="flex-1 flex min-h-0 px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6 gap-2 md:gap-3">
+        <div className="hidden md:flex flex-col w-[220px] lg:w-[260px] flex-shrink-0 rounded-xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${t.surface.secondary}, ${t.surface.secondary}80)`, border: `1px solid ${t.surface.border}`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 2px rgba(0,0,0,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
           <FonctionCategoryList categories={categories} fonctions={fonctions} selectedId={selectedCatId}
             onSelect={id => { setSelectedCatId(id); closeRight(); exitSelectMode(); }}
             onAdd={() => { setEditingCat(null); setCatModalOpen(true); }}
@@ -236,7 +236,7 @@ export default function SAFonctionsTalvex() {
           </div>
         </div>
         {rightPanelOpen && (
-          <div className="hidden md:flex flex-col w-[400px] flex-shrink-0 rounded-xl overflow-hidden transition-all" style={{ background: `linear-gradient(135deg, ${t.surface.secondary}, ${t.surface.secondary}80)`, border: `1px solid ${t.surface.border}`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 2px rgba(0,0,0,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
+          <div className="hidden md:flex flex-col w-[320px] lg:w-[400px] flex-shrink-0 rounded-xl overflow-hidden transition-all" style={{ background: `linear-gradient(135deg, ${t.surface.secondary}, ${t.surface.secondary}80)`, border: `1px solid ${t.surface.border}`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 2px rgba(0,0,0,0.04)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
             {rightPanel.mode === 'detail' && activeFn && (
               <FonctionDetailPanel fonction={activeFn} categoryLabel={catLabel(activeFn.categoryId)} onClose={closeRight}
                 onEdit={() => openEdit(activeFn.id)}
