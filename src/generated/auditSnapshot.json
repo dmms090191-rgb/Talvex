@@ -1,7 +1,13 @@
 {
-  "generatedAt": "2026-06-10T10:26:21.592Z",
-  "anyCount": 0,
-  "anyOccurrences": [],
+  "generatedAt": "2026-06-10T16:16:44.735Z",
+  "anyCount": 1,
+  "anyOccurrences": [
+    {
+      "file": "src/pages/admin/views/calquer-logo/CalquerLogoBgPicker.tsx",
+      "line": 94,
+      "text": "const dropper = new (window as any).EyeDropper();"
+    }
+  ],
   "unusedImportCount": 0,
   "unusedImports": [],
   "largeFileCount": 0,
@@ -11,7 +17,7 @@
   "eslintErrorCount": 0,
   "eslintWarningCount": 0,
   "eslintIssues": [],
-  "totalFilesAnalyzed": 826,
-  "totalLinesAnalyzed": 110806,
+  "totalFilesAnalyzed": 840,
+  "totalLinesAnalyzed": 112750,
   "totalOverflowLines": 0
 }
