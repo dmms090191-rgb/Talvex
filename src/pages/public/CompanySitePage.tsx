@@ -31,6 +31,10 @@ export default function CompanySitePage({ preloadedPage, slug, pageId, domainCom
   const [loginOpen, setLoginOpen] = useState(false);
 
   useEffect(() => {
+    document.getElementById('root')?.classList.add('app-ready');
+  }, []);
+
+  useEffect(() => {
     if (slug === '__domain_not_found__') {
       setNotFound(true);
       setLoading(false);
