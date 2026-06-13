@@ -54,7 +54,7 @@ function App() {
   const [impersonatedAdmin, setImpersonatedAdmin] = useState<ImpersonatedAdmin | null>(null);
   const [impersonatedCompanySuperAdmin, setImpersonatedCompanySuperAdmin] = useState<ImpersonatedCompanySuperAdmin | null>(null);
   const [directCSA, setDirectCSA] = useState<ImpersonatedCompanySuperAdmin | null>(null);
-  const { customDomainSlug, customDomainPageId, customDomainCompanyId, customDomainNotFound, checking: customDomainChecking } = useCustomDomain();
+  const { customDomainPage, customDomainSlug, customDomainPageId, customDomainCompanyId, customDomainNotFound, checking: customDomainChecking } = useCustomDomain();
   const [domainBlocked, setDomainBlocked] = useState(false);
   const [saUserId, setSaUserId] = useState<string | null>(null);
   const [saDisplayName, setSaDisplayName] = useState('Support Talvex');
@@ -180,7 +180,7 @@ function App() {
   const siteSlugMatch = window.location.pathname.match(/^\/site\/([^/]+)/);
   if (siteSlugMatch) return <CompanySitePage slug={siteSlugMatch[1]} />;
 
-  if ((customDomainSlug || customDomainPageId) && !role) return <CompanySitePage slug={customDomainSlug} pageId={customDomainPageId} domainCompanyId={customDomainCompanyId} onLogin={handleDomainLogin} />;
+  if ((customDomainSlug || customDomainPageId) && !role) return <CompanySitePage preloadedPage={customDomainPage} slug={customDomainSlug} pageId={customDomainPageId} domainCompanyId={customDomainCompanyId} onLogin={handleDomainLogin} />;
   if (customDomainNotFound && !role) return <CompanySitePage slug="__domain_not_found__" />;
 
   if (role === 'company_super_admin' && !directCSA) {

@@ -52,7 +52,7 @@ export async function getTemplateByKey(templateKey: string): Promise<SiteTemplat
 export async function getAllHomePages(): Promise<CompanyHomePageWithCompany[]> {
   const { data, error } = await supabase
     .from('company_home_pages')
-    .select('*, companies(name)')
+    .select('*, companies(name, company_tier, parent_company_id)')
     .order('updated_at', { ascending: false });
   if (error) throw error;
   return (data ?? []) as CompanyHomePageWithCompany[];

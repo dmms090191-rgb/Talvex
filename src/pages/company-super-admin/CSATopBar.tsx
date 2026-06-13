@@ -24,6 +24,7 @@ const VIEW_TITLES: Record<CSAView, string> = {
   overview: 'Dashboard',
   admins: 'Liste des admins',
   info: 'Info Super Admin',
+  application: 'Application',
 };
 
 export default function CSATopBar({ activeView, csaUserId, companyId, companyName, firstName, lastName, onMobileMenu, topbarRef, editorZone3Bg }: Props) {

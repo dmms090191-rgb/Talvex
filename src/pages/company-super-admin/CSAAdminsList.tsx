@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Users, RefreshCw, AlertCircle, UserCheck, UserX, Calendar, Plus, MoreHorizontal, Settings } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Users, RefreshCw, AlertCircle, UserCheck, UserX, Plus, MoreHorizontal, User, Mail, Building2, Phone, Shield, CalendarDays, Lock, Settings } from 'lucide-react';
 import { useThemeTokens } from '../../hooks/useThemeTokens';
 import { supabase } from '../../lib/supabase';
 import CSAAdminsCreateModal from './CSAAdminsCreateModal';
@@ -62,9 +62,6 @@ export default function CSAAdminsList({ companyId, onConnectAsAdmin }: { company
 
   useEffect(() => { fetchAdmins(); }, [fetchAdmins]);
 
-  const activeCount = useMemo(() => admins.filter(a => a.access_enabled).length, [admins]);
-  const inactiveCount = admins.length - activeCount;
-
   return (
     <div className="p-3 sm:p-4 md:p-6 lg:p-8 space-y-5">
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -97,28 +94,6 @@ export default function CSAAdminsList({ companyId, onConnectAsAdmin }: { company
           </div>
         </div>
       </div>
-
-      {admins.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { icon: Users, label: 'Total', value: admins.length, color: t.accent.text, bg: t.accent.bg, border: t.accent.border },
-            { icon: UserCheck, label: 'Actifs', value: activeCount, color: t.success.text, bg: t.success.bg, border: t.success.border },
-            { icon: UserX, label: 'Inactifs', value: inactiveCount, color: t.danger.text, bg: t.danger.bg, border: t.danger.border },
-            { icon: Calendar, label: 'Dernier cree', value: admins.length > 0 ? formatDate(admins[admins.length - 1].created_at) : '\u2014', color: t.text.secondary, bg: t.surface.secondary, border: t.surface.border },
-          ].map(stat => {
-            const Icon = stat.icon;
-            return (
-              <div key={stat.label} className="rounded-xl p-3.5" style={{ background: stat.bg, border: `1px solid ${stat.border}` }}>
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Icon className="w-3.5 h-3.5" style={{ color: stat.color }} />
-                  <span className="text-[10px] font-bold tracking-wider uppercase" style={{ color: t.text.quaternary }}>{stat.label}</span>
-                </div>
-                <p className="text-sm font-bold" style={{ color: stat.color }}>{stat.value}</p>
-              </div>
-            );
-          })}
-        </div>
-      )}
 
       {error && (
         <div className="flex items-center gap-2 px-4 py-3 rounded-xl" style={{ background: t.danger.bg, border: `1px solid ${t.danger.border}` }}>
@@ -183,25 +158,29 @@ interface TableProps {
   onActions: (admin: CSAAdminUser) => void;
 }
 
+const COL_ICONS: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
+  Prenom: User, Nom: User, Email: Mail, Societe: Building2, Telephone: Phone,
+  Role: Shield, 'Cree le': CalendarDays, Acces: Lock, Actions: Settings,
+};
+
 function CSAAdminsDesktopTable({ admins, t, onActions }: TableProps) {
   const cols = ['Prenom', 'Nom', 'Email', 'Societe', 'Telephone', 'Role', 'Cree le', 'Acces', 'Actions'];
   return (
     <div className="hidden md:block overflow-x-auto">
       <table className="w-full table-auto" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
         <thead>
-          <tr style={{ borderBottom: `1px solid ${t.table.headerBorder}` }}>
-            {cols.map((col, ci) => (
-              <th key={col} className="px-5 py-4 text-left" style={{
-                borderBottom: `2px solid ${t.accent.solid}`,
-                borderRight: ci < cols.length - 1 ? `1px solid ${t.table.rowBorder}` : 'none',
-                background: t.table.headerBg,
-              }}>
-                <div className="flex items-center gap-2">
-                  {col === 'Actions' && <Settings className="w-3 h-3 flex-shrink-0" style={{ color: t.accent.text, opacity: 0.6 }} />}
-                  <span className="text-[10px] font-bold tracking-[0.1em] uppercase" style={{ color: t.table.headerText }}>{col}</span>
-                </div>
-              </th>
-            ))}
+          <tr style={{ background: t.table.headerBg }}>
+            {cols.map((col) => {
+              const Icon = COL_ICONS[col];
+              return (
+                <th key={col} className="px-5 py-4 text-left" style={{ borderBottom: `2px solid ${t.accent.solid}` }}>
+                  <div className="flex items-center gap-2">
+                    {Icon && <Icon className="w-3 h-3 flex-shrink-0" style={{ color: t.accent.text, opacity: 0.6 }} />}
+                    <span className="text-[10px] font-bold tracking-[0.1em] uppercase" style={{ color: t.table.headerText }}>{col}</span>
+                  </div>
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>

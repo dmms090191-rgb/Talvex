@@ -1,19 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Smartphone, Loader2 } from 'lucide-react';
-import { useThemeTokens } from '../../../hooks/useThemeTokens';
-import { useCompanyId } from '../../../hooks/useCompanyId';
-import { useAppConfig } from '../../../hooks/useAppConfig';
-import { useActiveLogo } from '../../../hooks/useActiveLogo';
-import { supabase } from '../../../lib/supabase';
-import usePwaInstall from '../../../hooks/usePwaInstall';
-import SimulatedPhone from '../../../components/SimulatedPhone';
-import AdminAppFeaturesList from './application/AdminAppFeaturesList';
-import AdminAppIconPickerModal from './application/AdminAppIconPickerModal';
-import PwaInstallButton from '../../superadmin/views/application/PwaInstallButton';
+import { useThemeTokens } from '../../hooks/useThemeTokens';
+import { useAppConfig } from '../../hooks/useAppConfig';
+import { useActiveLogo } from '../../hooks/useActiveLogo';
+import { supabase } from '../../lib/supabase';
+import usePwaInstall from '../../hooks/usePwaInstall';
+import SimulatedPhone from '../../components/SimulatedPhone';
+import AdminAppFeaturesList from '../admin/views/application/AdminAppFeaturesList';
+import AdminAppIconPickerModal from '../admin/views/application/AdminAppIconPickerModal';
+import PwaInstallButton from '../superadmin/views/application/PwaInstallButton';
 
-export default function AdminApplicationPage() {
+interface Props {
+  companyId: string;
+}
+
+export default function CSAApplicationPage({ companyId }: Props) {
   const t = useThemeTokens();
-  const companyId = useCompanyId();
   const { config, loading: configLoading, updateConfig } = useAppConfig(companyId, 'company');
   const { url: activeLogoUrl } = useActiveLogo(companyId);
   const pwa = usePwaInstall();
@@ -41,14 +43,6 @@ export default function AdminApplicationPage() {
     setShowIconPicker(false);
   }, [updateConfig]);
 
-  if (!companyId) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-7 h-7 animate-spin" style={{ color: '#0ea5e9' }} />
-      </div>
-    );
-  }
-
   if (configLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -59,7 +53,6 @@ export default function AdminApplicationPage() {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto">
-      {/* Header */}
       <div className="text-center mb-8 sm:mb-10">
         <div
           className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4"
@@ -81,9 +74,7 @@ export default function AdminApplicationPage() {
         </div>
       </div>
 
-      {/* Two-column: Features + Phone */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 lg:gap-12 items-start justify-items-center">
-        {/* Features card */}
         <div
           className="rounded-2xl p-6 sm:p-8 w-full max-w-md"
           style={{
@@ -99,7 +90,6 @@ export default function AdminApplicationPage() {
           />
         </div>
 
-        {/* Phone preview */}
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
             <span
@@ -113,7 +103,6 @@ export default function AdminApplicationPage() {
         </div>
       </div>
 
-      {/* Icon picker modal */}
       {showIconPicker && (
         <AdminAppIconPickerModal
           companyId={companyId}

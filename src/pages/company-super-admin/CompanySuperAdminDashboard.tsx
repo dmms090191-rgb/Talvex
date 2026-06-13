@@ -13,6 +13,7 @@ import VisualCustomizeOverlay from '../../components/visualCustomize/VisualCusto
 import VisualCustomizeModal from '../../components/visualCustomize/VisualCustomizeModal';
 import VCPreviewToolbar from '../../components/visualCustomize/VCPreviewToolbar';
 import AppShell from '../../app/AppShell';
+import { DemoSessionProvider } from '../../components/demo/DemoSessionContext';
 import { saveConnectReturnContext, consumeConnectReturnContext } from '../../lib/connectReturnContext';
 import CSAInfoPage from './CSAInfoPage';
 import CSASidebar, { type CSAView } from './CSASidebar';
@@ -20,6 +21,7 @@ import CSATopBar from './CSATopBar';
 import CSAOverview from './CSAOverview';
 import CSAAdminsList from './CSAAdminsList';
 import CSAEditorPanels from './CSAEditorPanels';
+import CSAApplicationPage from './CSAApplicationPage';
 import type { CSAAdminUser } from './CSAAdminsList';
 
 const AdminDashboard = lazy(() => import('../admin/AdminDashboard'));
@@ -46,15 +48,17 @@ export default function CompanySuperAdminDashboard({ impersonated, onBack, isImp
 
   if (impersonatedAdmin) {
     return (
-      <AppShell panelRole="admin" useCompanyProvider companyId={impersonatedAdmin.company_id}>
-        <AdminDashboard
-          onLogout={() => {}}
-          impersonatedAdmin={impersonatedAdmin}
-          onBackToSuperAdmin={() => setImpersonatedAdmin(null)}
-          backLabel="Retour Super Admin"
-          isSAViewing
-        />
-      </AppShell>
+      <DemoSessionProvider>
+        <AppShell panelRole="admin" useCompanyProvider companyId={impersonatedAdmin.company_id}>
+          <AdminDashboard
+            onLogout={() => {}}
+            impersonatedAdmin={impersonatedAdmin}
+            onBackToSuperAdmin={() => setImpersonatedAdmin(null)}
+            backLabel="Retour Super Admin"
+            isSAViewing
+          />
+        </AppShell>
+      </DemoSessionProvider>
     );
   }
 
@@ -279,6 +283,7 @@ function CSADashboardInner({ impersonated, onBack, isImpersonation = true, onCon
           {activeView === 'overview' && <CSAOverview impersonated={currentImpersonated} fullName={fullName} />}
           {activeView === 'admins' && <CSAAdminsList companyId={impersonated.company_id} onConnectAsAdmin={onConnectAsAdmin} />}
           {activeView === 'info' && <CSAInfoPage impersonated={currentImpersonated} onNameUpdated={handleNameUpdated} />}
+          {activeView === 'application' && <CSAApplicationPage companyId={impersonated.company_id} />}
         </main>
       </div>
 

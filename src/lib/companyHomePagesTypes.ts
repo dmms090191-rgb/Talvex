@@ -71,6 +71,12 @@ export interface CompanyHomePage {
 
 export type CompanyHomePageUpsert = Omit<CompanyHomePage, 'id' | 'created_at' | 'updated_at'>;
 
+export interface CompanyHomePageCompany {
+  name: string;
+  company_tier: string;
+  parent_company_id: string | null;
+}
+
 export interface CompanyHomePageWithCompany extends CompanyHomePage {
-  companies: { name: string } | null;
+  companies: CompanyHomePageCompany | null;
 }

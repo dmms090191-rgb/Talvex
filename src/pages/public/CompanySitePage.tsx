@@ -6,6 +6,7 @@ import { getTemplateComponent, type SectionOverride } from '../superadmin/views/
 import { supabase } from '../../lib/supabase';
 
 interface Props {
+  preloadedPage?: CompanyHomePage | null;
   slug?: string | null;
   pageId?: string | null;
   domainCompanyId?: string | null;
@@ -20,12 +21,12 @@ interface PublishedSectionRow {
   published_styles: Record<string, string> | null;
 }
 
-export default function CompanySitePage({ slug, pageId, domainCompanyId, onLogin: onLoginProp }: Props) {
-  const [page, setPage] = useState<CompanyHomePage | null>(null);
+export default function CompanySitePage({ preloadedPage, slug, pageId, domainCompanyId, onLogin: onLoginProp }: Props) {
+  const [page, setPage] = useState<CompanyHomePage | null>(preloadedPage ?? null);
   const [templateKey, setTemplateKey] = useState<string | null>(null);
   const [sectionOverrides, setSectionOverrides] = useState<Record<string, SectionOverride> | undefined>();
   const [sectionOrder, setSectionOrder] = useState<string[] | undefined>();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!preloadedPage);
   const [notFound, setNotFound] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
 
@@ -37,11 +38,12 @@ export default function CompanySitePage({ slug, pageId, domainCompanyId, onLogin
     }
     (async () => {
       try {
-        const data = slug
-          ? await getHomePageBySlug(slug)
-          : pageId
-            ? await getHomePageById(pageId)
-            : null;
+        const data = preloadedPage
+          ?? (slug
+            ? await getHomePageBySlug(slug)
+            : pageId
+              ? await getHomePageById(pageId)
+              : null);
         if (!data) { setNotFound(true); return; }
         setPage(data);
         if (data.active_template_id) {
