@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Wrench, Crown, ChevronUp, ChevronDown, Pencil, X, Check, FolderInput, Award, Star, Paintbrush } from 'lucide-react';
+import { Eye, EyeOff, Wrench, Crown, ChevronUp, ChevronDown, Pencil, X, Check, FolderInput, Award, Star, Paintbrush, Share2 } from 'lucide-react';
 import type { ThemeConfigRow, ThemeStatus } from '../../../../hooks/useThemeConfig';
 import { ALL_THEMES } from '../../../../components/theme/themeData';
 import { ThemePreview } from '../../../../components/theme/ThemeCard';
@@ -10,6 +10,7 @@ interface Props {
   onStatusChange: (s: ThemeStatus) => void;
   onToggleRecommended: () => void;
   onToggleFavorite: () => void;
+  onToggleShared: () => void;
   onRename: () => void;
   onMove: () => void;
   onMoveUp: () => void;
@@ -19,7 +20,7 @@ interface Props {
   onEditInEditor?: () => void;
 }
 
-export default function SAThemeDetailPanel({ config, categoryName, onStatusChange, onToggleRecommended, onToggleFavorite, onRename, onMove, onMoveUp, onMoveDown, onClose, displayOrder, onEditInEditor }: Props) {
+export default function SAThemeDetailPanel({ config, categoryName, onStatusChange, onToggleRecommended, onToggleFavorite, onToggleShared, onRename, onMove, onMoveUp, onMoveDown, onClose, displayOrder, onEditInEditor }: Props) {
   const themeEntry = ALL_THEMES.find(t => t.value === config.theme_key);
   const colors: [string, string, string] = themeEntry?.colors ?? ['#1a1a2e', '#16213e', '#0f3460'];
   const meta = STATUS_META[config.status];
@@ -45,9 +46,17 @@ export default function SAThemeDetailPanel({ config, categoryName, onStatusChang
               {categoryName}{themeEntry?.description ? ` \u00b7 ${themeEntry.description}` : ''}
             </p>
           </div>
-          <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9px] font-bold flex-shrink-0" style={{ background: meta.bg, border: `1px solid ${meta.border}`, color: meta.color }}>
-            {meta.label}
-          </span>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {config.is_shared && (
+              <span className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-bold" style={{ background: 'rgba(34,211,238,0.10)', border: '1px solid rgba(34,211,238,0.25)', color: '#22d3ee' }}>
+                <Share2 className="w-2.5 h-2.5" />
+                Partage
+              </span>
+            )}
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9px] font-bold" style={{ background: meta.bg, border: `1px solid ${meta.border}`, color: meta.color }}>
+              {meta.label}
+            </span>
+          </div>
         </div>
 
         <div className="h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
@@ -108,6 +117,7 @@ export default function SAThemeDetailPanel({ config, categoryName, onStatusChang
           <ActionBtn icon={<FolderInput className="w-3.5 h-3.5" />} label="Deplacer vers..." onClick={onMove} />
           <ActionBtn icon={<Award className="w-3.5 h-3.5" />} label={config.is_recommended ? 'Retirer recommande' : 'Recommander'} onClick={onToggleRecommended} accent={config.is_recommended} />
           <ActionBtn icon={<Star className="w-3.5 h-3.5" />} label={config.is_favorite ? 'Retirer favori' : 'Marquer favori'} onClick={onToggleFavorite} accent={config.is_favorite} />
+          <ActionBtn icon={<Share2 className="w-3.5 h-3.5" />} label={config.is_shared ? 'Retirer le partage' : 'Partager a tous'} onClick={onToggleShared} accent={config.is_shared} />
           {config.status !== 'hidden' ? (
             <ActionBtn icon={<EyeOff className="w-3.5 h-3.5" />} label="Masquer le theme" onClick={() => onStatusChange('hidden')} danger />
           ) : (

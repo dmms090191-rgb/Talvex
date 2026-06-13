@@ -1,51 +1,65 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { ALL_THEMES } from './themeData';
 import { supabase } from '../../lib/supabase';
-import { CUSTOM_CATEGORY, FAV_TAB, type ThemeConfigLite, type CustomThemeRow, type CategoryLite } from './themeSelectorTypes';
+import { CUSTOM_CATEGORY, FAV_TAB, PERSONAL_TAB, COMMUNITY_TAB, type ThemeConfigLite, type CustomThemeRow, type CategoryLite } from './themeSelectorTypes';
 
-export function useThemeSelectorData(open: boolean) {
+export function useThemeSelectorData(open: boolean, effectiveUserId?: string | null) {
   const [configMap, setConfigMap] = useState<Map<string, ThemeConfigLite>>(new Map());
   const [dynamicCategories, setDynamicCategories] = useState<CategoryLite[]>([]);
-  const [customThemes, setCustomThemes] = useState<CustomThemeRow[]>([]);
+  const [personalCustomThemes, setPersonalCustomThemes] = useState<CustomThemeRow[]>([]);
+  const [sharedCustomThemes, setSharedCustomThemes] = useState<CustomThemeRow[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [userFavorites, setUserFavorites] = useState<Set<string>>(new Set());
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
     (async () => {
       const [configRes, catRes, userRes] = await Promise.all([
-        supabase.from('theme_config').select('theme_key, label, status, is_recommended, is_favorite, display_order, category, created_from_theme, theme_tokens').order('display_order', { ascending: true }),
+        supabase.from('theme_config').select('theme_key, label, status, is_recommended, is_favorite, display_order, category, created_from_theme, theme_tokens, owner_user_id, owner_company_id, is_shared').order('display_order', { ascending: true }),
         supabase.from('theme_categories').select('slug, name, sort_order').order('sort_order', { ascending: true }),
         supabase.auth.getUser().then(async ({ data: { user } }) => {
           if (!user) return null;
           const { data } = await supabase.from('user_preferences').select('favorite_themes').eq('user_id', user.id).maybeSingle();
-          return data;
+          return { user, prefs: data };
         }),
       ]);
       if (cancelled) return;
+
+      const authUserId = userRes?.user?.id ?? null;
+      const resolvedUserId = effectiveUserId ?? authUserId;
+      setCurrentUserId(resolvedUserId);
+
       if (configRes.data) {
         const map = new Map<string, ThemeConfigLite>();
-        const custom: CustomThemeRow[] = [];
+        const personal: CustomThemeRow[] = [];
+        const shared: CustomThemeRow[] = [];
         for (const row of configRes.data) {
           map.set(row.theme_key, row as ThemeConfigLite);
           if (row.category === CUSTOM_CATEGORY && row.status === 'visible') {
-            custom.push(row as CustomThemeRow);
+            const isOwner = resolvedUserId != null && row.owner_user_id != null && row.owner_user_id === resolvedUserId;
+            if (isOwner && !row.is_shared) {
+              personal.push(row as CustomThemeRow);
+            } else if (row.owner_user_id == null || row.is_shared) {
+              shared.push(row as CustomThemeRow);
+            }
           }
         }
         setConfigMap(map);
-        setCustomThemes(custom);
+        setPersonalCustomThemes(personal);
+        setSharedCustomThemes(shared);
       }
       if (catRes.data) setDynamicCategories(catRes.data as CategoryLite[]);
-      if (userRes?.favorite_themes && Array.isArray(userRes.favorite_themes)) {
-        setUserFavorites(new Set(userRes.favorite_themes as string[]));
+      if (userRes?.prefs?.favorite_themes && Array.isArray(userRes.prefs.favorite_themes)) {
+        setUserFavorites(new Set(userRes.prefs.favorite_themes as string[]));
       } else {
         setUserFavorites(new Set());
       }
       setLoaded(true);
     })();
     return () => { cancelled = true; };
-  }, [open]);
+  }, [open, effectiveUserId]);
 
   const toggleFavorite = useCallback((themeKey: string) => {
     setUserFavorites(prev => {
@@ -64,6 +78,8 @@ export function useThemeSelectorData(open: boolean) {
       return next;
     });
   }, []);
+
+  const allCustomThemes = useMemo(() => [...personalCustomThemes, ...sharedCustomThemes], [personalCustomThemes, sharedCustomThemes]);
 
   const visibleThemes = useMemo(() => {
     if (!loaded) return [];
@@ -103,15 +119,13 @@ export function useThemeSelectorData(open: boolean) {
     const allTab = base.find(t => t.key === 'all');
     if (allTab) result.push(allTab);
     result.push({ key: FAV_TAB, label: 'Favoris' });
-    if (customThemes.length > 0) result.push({ key: CUSTOM_CATEGORY, label: 'Personnalises' });
+    if (personalCustomThemes.length > 0) result.push({ key: PERSONAL_TAB, label: 'Personnels' });
+    if (sharedCustomThemes.length > 0) result.push({ key: COMMUNITY_TAB, label: 'Communaute' });
     for (const t of base) {
       if (t.key !== 'all' && t.key !== CUSTOM_CATEGORY) result.push(t);
     }
-    if (base.some(t => t.key === CUSTOM_CATEGORY) && !result.some(t => t.key === CUSTOM_CATEGORY)) {
-      result.push({ key: CUSTOM_CATEGORY, label: 'Personnalises' });
-    }
     return result;
-  }, [dynamicCategories, customThemes]);
+  }, [dynamicCategories, personalCustomThemes, sharedCustomThemes]);
 
   const recommendedKeys = useMemo(() => {
     const keys = new Set<string>();
@@ -126,8 +140,9 @@ export function useThemeSelectorData(open: boolean) {
   }, [configMap]);
 
   return {
-    configMap, customThemes, userFavorites, toggleFavorite,
-    visibleThemes, tabs, recommendedKeys, premiumKeys,
+    configMap, customThemes: allCustomThemes, personalCustomThemes, sharedCustomThemes,
+    userFavorites, toggleFavorite,
+    visibleThemes, tabs, recommendedKeys, premiumKeys, currentUserId,
   };
 }
 
@@ -149,7 +164,7 @@ export function useThemeSelectorFilters(
         t.tags.some(tag => tag.includes(q)) ||
         t.category.includes(q),
       );
-    } else if (tab !== 'all' && tab !== CUSTOM_CATEGORY && tab !== FAV_TAB) {
+    } else if (tab !== 'all' && tab !== CUSTOM_CATEGORY && tab !== FAV_TAB && tab !== PERSONAL_TAB && tab !== COMMUNITY_TAB) {
       list = list.filter(t => {
         const cfg = configMap.get(t.value);
         const cat = cfg?.category || t.category;
@@ -164,7 +179,7 @@ export function useThemeSelectorFilters(
       const q = search.toLowerCase();
       return customThemes.filter(ct => ct.label.toLowerCase().includes(q));
     }
-    if (tab === 'all' || tab === CUSTOM_CATEGORY || tab === FAV_TAB) return customThemes;
+    if (tab === 'all' || tab === CUSTOM_CATEGORY || tab === FAV_TAB || tab === PERSONAL_TAB || tab === COMMUNITY_TAB) return customThemes;
     return [];
   }, [tab, search, customThemes]);
 

@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import type { SAView } from './SuperAdminSidebar';
 import { SimulationProvider } from '../../contexts/SimulationContext';
 import type { AdminUser } from './views/SAAdmins';
+import type { CompanySuperAdmin } from './views/super-admins/superAdminTypes';
 
 const SADashboard = lazy(() => import('./views/SADashboard'));
 const SAAdmins = lazy(() => import('./views/SAAdmins'));
@@ -23,11 +24,13 @@ const SAApplicationPage = lazy(() => import('./views/SAApplicationPage'));
 const SAThemes = lazy(() => import('./views/themes/SAThemes'));
 const EditeurIA = lazy(() => import('../admin/views/editeur-ia/EditeurIA'));
 const SACalquerLogo = lazy(() => import('./views/SACalquerLogo'));
+const SASuperAdmins = lazy(() => import('./views/super-admins/SASuperAdmins'));
 
 interface Props {
   activeView: SAView;
   handleNavigate: (v: SAView) => void;
   handleConnectAsAdmin: (admin: AdminUser) => void;
+  handleConnectAsCompanySuperAdmin: (sa: CompanySuperAdmin) => void;
   handleOpenChatAdmin: (admin: AdminUser) => void;
   cachedAdmins: AdminUser[];
   adminsRefreshing: boolean;
@@ -51,6 +54,7 @@ export default function SAViewRouter({
   activeView,
   handleNavigate,
   handleConnectAsAdmin,
+  handleConnectAsCompanySuperAdmin,
   handleOpenChatAdmin,
   cachedAdmins,
   adminsRefreshing,
@@ -69,6 +73,7 @@ export default function SAViewRouter({
 }: Props) {
   switch (activeView) {
     case 'dashboard': return <SADashboard onNavigate={handleNavigate} onNavigateToAudit={() => { setDocInitialTab('audit-technique'); setDocKey(k => k + 1); setActiveView('documentation-crm'); }} adminCount={cachedAdmins.length} adminsLoading={adminsRefreshing && cachedAdmins.length === 0} />;
+    case 'super-admins': return <SASuperAdmins onConnectAsCompanySuperAdmin={handleConnectAsCompanySuperAdmin} />;
     case 'admins': return <SAAdmins onConnectAsAdmin={handleConnectAsAdmin} onOpenChat={handleOpenChatAdmin} cachedAdmins={cachedAdmins} refreshing={adminsRefreshing} cachedError={adminsError} onRefresh={fetchAdminsCache} />;
     case 'chat-admin': return null;
     case 'documentation-crm': return <div className="p-3 sm:p-4 md:p-6 flex flex-col h-full min-h-0"><DocumentationCrm key={docKey} initialTab={docInitialTab} onInitialTabConsumed={() => setDocInitialTab(undefined)} /></div>;

@@ -11,7 +11,7 @@ import { useEditorModeSafe, resolveTextColor, resolveTypography } from '../../co
 import { useTheme } from '../../contexts/ThemeContext';
 import { ensureGoogleFont } from '../../components/editor/EditorTypographyPanel';
 
-export type SAView = 'dashboard' | 'admins' | 'chat-admin' | 'documentation-crm' | 'system' | 'sauvegarde' | 'mon-compte' | 'tests-systeme' | 'crm-societe' | 'statuts' | 'api-ia' | 'cerveau-ia' | 'sites' | 'fonctions-talvex' | 'site-talvex' | 'logo' | 'ameliorations' | 'tuto' | 'application' | 'themes' | 'editeur-ia' | 'calquer-logo';
+export type SAView = 'dashboard' | 'super-admins' | 'admins' | 'chat-admin' | 'documentation-crm' | 'system' | 'sauvegarde' | 'mon-compte' | 'tests-systeme' | 'crm-societe' | 'statuts' | 'api-ia' | 'cerveau-ia' | 'sites' | 'fonctions-talvex' | 'site-talvex' | 'logo' | 'ameliorations' | 'tuto' | 'application' | 'themes' | 'editeur-ia' | 'calquer-logo';
 
 interface SuperAdminSidebarProps {
   activeView: SAView;
@@ -29,48 +29,49 @@ const DEFAULT_SECTIONS: SidebarSection[] = [
   {
     title: 'Principal',
     items: [
-      { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-      { id: 'logo', label: 'Logo', icon: <ImageIcon className="w-4 h-4" /> },
-      { id: 'calquer-logo', label: 'Calquer logo', icon: <CopySlash className="w-4 h-4" /> },
-      { id: 'site-talvex', label: 'Site', icon: <LayoutTemplate className="w-4 h-4" /> },
-      { id: 'application', label: 'Application', icon: <Smartphone className="w-4 h-4" /> },
-      { id: 'themes', label: 'Gestion themes', icon: <Palette className="w-4 h-4" /> },
-      { id: 'tuto', label: 'Tuto', icon: <GraduationCap className="w-4 h-4" /> },
+      { id: 'dashboard', label: 'Dashboard RA', icon: <LayoutDashboard className="w-4 h-4" /> },
+      { id: 'logo', label: 'Logo RA', icon: <ImageIcon className="w-4 h-4" /> },
+      { id: 'calquer-logo', label: 'Calquer logo RA', icon: <CopySlash className="w-4 h-4" /> },
+      { id: 'site-talvex', label: 'Site RA', icon: <LayoutTemplate className="w-4 h-4" /> },
+      { id: 'application', label: 'Application RA', icon: <Smartphone className="w-4 h-4" /> },
+      { id: 'themes', label: 'Gestion themes RA', icon: <Palette className="w-4 h-4" /> },
+      { id: 'tuto', label: 'Tuto RA', icon: <GraduationCap className="w-4 h-4" /> },
     ],
   },
   {
     title: 'Gestion',
     items: [
-      { id: 'admins', label: 'Liste admins', icon: <UserCog className="w-4 h-4" /> },
-      { id: 'mon-compte', label: 'Mon compte', icon: <UserCircle className="w-4 h-4" /> },
-      { id: 'crm-societe', label: 'CRM Societe', icon: <Building2 className="w-4 h-4" /> },
-      { id: 'sites', label: 'Sites & Domaines', icon: <Globe className="w-4 h-4" /> },
-      { id: 'statuts', label: 'Statuts', icon: <Settings className="w-4 h-4" /> },
+      { id: 'super-admins', label: 'Liste Super Admins RA', icon: <Shield className="w-4 h-4" /> },
+      { id: 'admins', label: 'Liste admins RA', icon: <UserCog className="w-4 h-4" /> },
+      { id: 'mon-compte', label: 'Mon compte RA', icon: <UserCircle className="w-4 h-4" /> },
+      { id: 'crm-societe', label: 'CRM Societe RA', icon: <Building2 className="w-4 h-4" /> },
+      { id: 'sites', label: 'Sites & Domaines RA', icon: <Globe className="w-4 h-4" /> },
+      { id: 'statuts', label: 'Statuts RA', icon: <Settings className="w-4 h-4" /> },
     ],
   },
   {
     title: 'Contact',
     items: [
-      { id: 'chat-admin', label: 'Chat Admin', icon: <MessageSquare className="w-4 h-4" /> },
+      { id: 'chat-admin', label: 'Chat Admin RA', icon: <MessageSquare className="w-4 h-4" /> },
     ],
   },
   {
     title: 'Outils & Système',
     items: [
-      { id: 'api-ia', label: 'API IA', icon: <Bot className="w-4 h-4" /> },
-      { id: 'ameliorations', label: 'Ameliorations', icon: <TrendingUp className="w-4 h-4" /> },
-      { id: 'fonctions-talvex', label: 'Fonctions Talvex', icon: <Blocks className="w-4 h-4" /> },
-      { id: 'cerveau-ia', label: 'Cerveau IA SA', icon: <Brain className="w-4 h-4" /> },
-      { id: 'editeur-ia', label: 'Editeur IA', icon: <Sparkles className="w-4 h-4" /> },
+      { id: 'api-ia', label: 'API IA RA', icon: <Bot className="w-4 h-4" /> },
+      { id: 'ameliorations', label: 'Ameliorations RA', icon: <TrendingUp className="w-4 h-4" /> },
+      { id: 'fonctions-talvex', label: 'Fonctions Talvex RA', icon: <Blocks className="w-4 h-4" /> },
+      { id: 'cerveau-ia', label: 'Cerveau IA SA RA', icon: <Brain className="w-4 h-4" /> },
+      { id: 'editeur-ia', label: 'Editeur IA RA', icon: <Sparkles className="w-4 h-4" /> },
     ],
   },
   {
     title: 'Maintenance',
     items: [
-      { id: 'system', label: 'System', icon: <Monitor className="w-4 h-4" /> },
-      { id: 'documentation-crm', label: 'Documentation CRM', icon: <BookOpen className="w-4 h-4" /> },
-      { id: 'tests-systeme', label: 'Tests Système', icon: <FlaskConical className="w-4 h-4" /> },
-      { id: 'sauvegarde', label: 'Sauvegarde & restauration', icon: <HardDriveDownload className="w-4 h-4" /> },
+      { id: 'system', label: 'System RA', icon: <Monitor className="w-4 h-4" /> },
+      { id: 'documentation-crm', label: 'Documentation CRM RA', icon: <BookOpen className="w-4 h-4" /> },
+      { id: 'tests-systeme', label: 'Tests Systeme RA', icon: <FlaskConical className="w-4 h-4" /> },
+      { id: 'sauvegarde', label: 'Sauvegarde & restauration RA', icon: <HardDriveDownload className="w-4 h-4" /> },
     ],
   },
 ];
@@ -147,7 +148,7 @@ export default function SuperAdminSidebar({ activeView, onNavigate, collapsed, o
             </div>
             {!collapsed && (
               <div className="min-w-0 leading-tight">
-                <p className="text-sm font-bold tracking-tight truncate" style={{ color: t.sidebar.logoText }}>Super Admin</p>
+                <p className="text-sm font-bold tracking-tight truncate" style={{ color: t.sidebar.logoText }}>ROIS ADMIN</p>
                 <p className="text-[9px] tracking-[0.2em] uppercase" style={{ color: t.sidebar.logoSub }}>Plateforme SaaS</p>
               </div>
             )}

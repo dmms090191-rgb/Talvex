@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Search, Palette, Eye, EyeOff, Wrench, Crown, Settings2 } from 'lucide-react';
+import { Search, Palette, Eye, EyeOff, Wrench, Crown, Settings2, Share2 } from 'lucide-react';
 import { useThemeTokens } from '../../../../hooks/useThemeTokens';
 import { useThemeConfig, type ThemeConfigRow, type ThemeStatus } from '../../../../hooks/useThemeConfig';
 import { useThemeCategories } from '../../../../hooks/useThemeCategories';
@@ -61,6 +61,7 @@ export default function SAThemes() {
     hidden: configs.filter(c => c.status === 'hidden').length,
     rework: configs.filter(c => c.status === 'rework').length,
     premium: configs.filter(c => c.status === 'premium').length,
+    shared: configs.filter(c => c.is_shared).length,
   }), [configs]);
 
   const tabCounts = useMemo(() => {
@@ -76,6 +77,7 @@ export default function SAThemes() {
   const handleStatusChange = useCallback(async (key: string, status: ThemeStatus) => { await updateConfig(key, { status }); }, [updateConfig]);
   const handleToggleRecommended = useCallback(async (key: string) => { const c = configs.find(x => x.theme_key === key); if (c) await updateConfig(key, { is_recommended: !c.is_recommended }); }, [configs, updateConfig]);
   const handleToggleFavorite = useCallback(async (key: string) => { const c = configs.find(x => x.theme_key === key); if (c) await updateConfig(key, { is_favorite: !c.is_favorite }); }, [configs, updateConfig]);
+  const handleToggleShared = useCallback(async (key: string) => { const c = configs.find(x => x.theme_key === key); if (c) await updateConfig(key, { is_shared: !c.is_shared } as Partial<ThemeConfigRow>); }, [configs, updateConfig]);
   const handleMoveUp = useCallback(async (key: string) => { const idx = filtered.findIndex(c => c.theme_key === key); if (idx > 0) await swapOrder(key, filtered[idx - 1].theme_key); }, [filtered, swapOrder]);
   const handleMoveDown = useCallback(async (key: string) => { const idx = filtered.findIndex(c => c.theme_key === key); if (idx < filtered.length - 1) await swapOrder(key, filtered[idx + 1].theme_key); }, [filtered, swapOrder]);
 
@@ -108,7 +110,8 @@ export default function SAThemes() {
     const palette = (tokens.panel_palette as { background: string; surface: string; accent: string } | null) || null;
     const btnOverrides = (tokens.button_overrides as Record<string, import('../../../../contexts/editorModeTypes').ButtonOverride> | null) || null;
     const cardOvr = (tokens.card_overrides as Record<string, import('../../../../contexts/editorModeTypes').CardOverride> | null) || null;
-    editorCtx.loadCustomTheme(config.theme_key, fullZones, texts, bgImage, typo, palette, btnOverrides, bgImageZoom, bgImagePosX, bgImagePosY, cardOvr);
+    const bgImageFit = (tokens.background_image_fit as import('../../../../contexts/editorModeTypes').BgImageFitMode) || null;
+    editorCtx.loadCustomTheme(config.theme_key, fullZones, texts, bgImage, typo, palette, btnOverrides, bgImageZoom, bgImagePosX, bgImagePosY, cardOvr, bgImageFit);
     const vcOvr = tokens.vc_overrides as Record<string, { type: string; config: unknown }> | null;
     if (vc) {
       if (vcOvr && Object.keys(vcOvr).length > 0) {
@@ -165,12 +168,13 @@ export default function SAThemes() {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
           <StatCard label="Themes totaux" value={stats.total} color="#3b82f6" icon={<Palette className="w-5 h-5" />} />
           <StatCard label="Themes visibles" value={stats.visible} color="#34d399" icon={<Eye className="w-5 h-5" />} />
           <StatCard label="Themes masques" value={stats.hidden} color="#f87171" icon={<EyeOff className="w-5 h-5" />} />
           <StatCard label="A retravailler" value={stats.rework} color="#fbbf24" icon={<Wrench className="w-5 h-5" />} />
           <StatCard label="Themes premium" value={stats.premium} color="#a78bfa" icon={<Crown className="w-5 h-5" />} />
+          <StatCard label="Themes partages" value={stats.shared} color="#22d3ee" icon={<Share2 className="w-5 h-5" />} />
         </div>
 
         <SAThemeFilters
@@ -202,7 +206,7 @@ export default function SAThemes() {
               <div className={`grid gap-4 ${hasDetail ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'}`}>
                 {filtered.map((config, idx) => (
                   <div key={config.theme_key} onClick={() => selectionMode ? toggleSelectKey(config.theme_key) : setSelected(config.theme_key)} className="cursor-pointer">
-                    <SAThemeCard config={config} categoryName={getCategoryName(config.category)} onStatusChange={status => handleStatusChange(config.theme_key, status)} onToggleRecommended={() => handleToggleRecommended(config.theme_key)} onToggleFavorite={() => handleToggleFavorite(config.theme_key)} onMoveUp={() => handleMoveUp(config.theme_key)} onMoveDown={() => handleMoveDown(config.theme_key)} onRename={() => startRename(config.theme_key)} onMove={() => setMovingThemeKey(config.theme_key)} isFirst={idx === 0} isLast={idx === filtered.length - 1} selectionMode={selectionMode} isSelected={selectedKeys.has(config.theme_key)} onToggleSelect={() => toggleSelectKey(config.theme_key)} />
+                    <SAThemeCard config={config} categoryName={getCategoryName(config.category)} onStatusChange={status => handleStatusChange(config.theme_key, status)} onToggleRecommended={() => handleToggleRecommended(config.theme_key)} onToggleFavorite={() => handleToggleFavorite(config.theme_key)} onToggleShared={() => handleToggleShared(config.theme_key)} onMoveUp={() => handleMoveUp(config.theme_key)} onMoveDown={() => handleMoveDown(config.theme_key)} onRename={() => startRename(config.theme_key)} onMove={() => setMovingThemeKey(config.theme_key)} isFirst={idx === 0} isLast={idx === filtered.length - 1} selectionMode={selectionMode} isSelected={selectedKeys.has(config.theme_key)} onToggleSelect={() => toggleSelectKey(config.theme_key)} />
                   </div>
                 ))}
               </div>
@@ -212,7 +216,7 @@ export default function SAThemes() {
           {selectedConfig && (
             <div className="hidden lg:block flex-shrink-0 w-[340px] xl:w-[360px] border-l" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               <div className="sticky top-0 h-full overflow-y-auto">
-                <SAThemeDetailPanel config={selectedConfig} categoryName={getCategoryName(selectedConfig.category)} onStatusChange={s => handleStatusChange(selectedConfig.theme_key, s)} onToggleRecommended={() => handleToggleRecommended(selectedConfig.theme_key)} onToggleFavorite={() => handleToggleFavorite(selectedConfig.theme_key)} onRename={() => startRename(selectedConfig.theme_key)} onMove={() => setMovingThemeKey(selectedConfig.theme_key)} onMoveUp={() => handleMoveUp(selectedConfig.theme_key)} onMoveDown={() => handleMoveDown(selectedConfig.theme_key)} onClose={() => setSelected(null)} displayOrder={selectedConfig.display_order} onEditInEditor={selectedConfig.theme_tokens ? () => handleEditInEditor(selectedConfig) : undefined} />
+                <SAThemeDetailPanel config={selectedConfig} categoryName={getCategoryName(selectedConfig.category)} onStatusChange={s => handleStatusChange(selectedConfig.theme_key, s)} onToggleRecommended={() => handleToggleRecommended(selectedConfig.theme_key)} onToggleFavorite={() => handleToggleFavorite(selectedConfig.theme_key)} onToggleShared={() => handleToggleShared(selectedConfig.theme_key)} onRename={() => startRename(selectedConfig.theme_key)} onMove={() => setMovingThemeKey(selectedConfig.theme_key)} onMoveUp={() => handleMoveUp(selectedConfig.theme_key)} onMoveDown={() => handleMoveDown(selectedConfig.theme_key)} onClose={() => setSelected(null)} displayOrder={selectedConfig.display_order} onEditInEditor={selectedConfig.theme_tokens ? () => handleEditInEditor(selectedConfig) : undefined} />
               </div>
             </div>
           )}
@@ -220,7 +224,7 @@ export default function SAThemes() {
 
         {selectedConfig && (
           <div className="lg:hidden px-5 sm:px-6 pb-6">
-            <SAThemeDetailPanel config={selectedConfig} categoryName={getCategoryName(selectedConfig.category)} onStatusChange={s => handleStatusChange(selectedConfig.theme_key, s)} onToggleRecommended={() => handleToggleRecommended(selectedConfig.theme_key)} onToggleFavorite={() => handleToggleFavorite(selectedConfig.theme_key)} onRename={() => startRename(selectedConfig.theme_key)} onMove={() => setMovingThemeKey(selectedConfig.theme_key)} onMoveUp={() => handleMoveUp(selectedConfig.theme_key)} onMoveDown={() => handleMoveDown(selectedConfig.theme_key)} onClose={() => setSelected(null)} displayOrder={selectedConfig.display_order} />
+            <SAThemeDetailPanel config={selectedConfig} categoryName={getCategoryName(selectedConfig.category)} onStatusChange={s => handleStatusChange(selectedConfig.theme_key, s)} onToggleRecommended={() => handleToggleRecommended(selectedConfig.theme_key)} onToggleFavorite={() => handleToggleFavorite(selectedConfig.theme_key)} onToggleShared={() => handleToggleShared(selectedConfig.theme_key)} onRename={() => startRename(selectedConfig.theme_key)} onMove={() => setMovingThemeKey(selectedConfig.theme_key)} onMoveUp={() => handleMoveUp(selectedConfig.theme_key)} onMoveDown={() => handleMoveDown(selectedConfig.theme_key)} onClose={() => setSelected(null)} displayOrder={selectedConfig.display_order} />
           </div>
         )}
       </div>

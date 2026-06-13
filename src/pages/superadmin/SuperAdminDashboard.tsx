@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase';
 import { useUnreadSuperAdminMessages } from '../../hooks/useUnreadSuperAdminMessages';
 import { useAppIcon } from '../../hooks/useAppIcon';
 import type { AdminUser } from './views/SAAdmins';
+import type { CompanySuperAdmin } from './views/super-admins/superAdminTypes';
 import { useAdminsCache } from './useAdminsCache';
 import { useEditorLocateHandler } from './useEditorLocateHandler';
 import GlassBackgroundLayer from '../../components/theme/GlassBackgroundLayer';
@@ -28,6 +29,7 @@ const SAchatAdmin = lazy(() => import('./views/SAchatAdmin'));
 interface SuperAdminDashboardProps {
   onLogout: () => void;
   onConnectAsAdmin?: (admin: AdminUser) => void;
+  onConnectAsCompanySuperAdmin?: (sa: CompanySuperAdmin) => void;
 }
 
 export type EditorSubMode = null | 'onglet' | 'zone_droite';
@@ -45,7 +47,7 @@ export default function SuperAdminDashboard(props: SuperAdminDashboardProps) {
   );
 }
 
-function SuperAdminDashboardInner({ onLogout, onConnectAsAdmin }: SuperAdminDashboardProps) {
+function SuperAdminDashboardInner({ onLogout, onConnectAsAdmin, onConnectAsCompanySuperAdmin }: SuperAdminDashboardProps) {
   const t = useThemeTokens();
   const [activeView, setActiveView] = useState<SAView>('dashboard');
   const [docInitialTab, setDocInitialTab] = useState<string | undefined>(undefined);
@@ -164,6 +166,7 @@ function SuperAdminDashboardInner({ onLogout, onConnectAsAdmin }: SuperAdminDash
 
   const handleNavigate = (view: SAView) => { setActiveView(view); };
   const handleConnectAsAdmin = (admin: AdminUser) => { saveConnectReturnContext({ fromRole: 'super_admin', fromTab: 'admins', adminId: admin.id, scrollY: window.scrollY }); onConnectAsAdmin?.(admin); };
+  const handleConnectAsCompanySuperAdmin = (sa: CompanySuperAdmin) => { onConnectAsCompanySuperAdmin?.(sa); };
   const handleOpenChatAdmin = useCallback((admin: AdminUser) => { setChatAdmin(admin); setActiveView('chat-admin'); }, []);
   const handleChangeAppIcon = useCallback(() => { setAppIconSelectionMode(true); setActiveView('logo'); }, []);
   const handleAppIconSelected = useCallback(() => { setAppIconSelectionMode(false); setActiveView('application'); }, []);
@@ -258,7 +261,7 @@ function SuperAdminDashboardInner({ onLogout, onConnectAsAdmin }: SuperAdminDash
           )}
           {activeView !== 'chat-admin' && (
             <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin" /></div>}>
-              <SAViewRouter activeView={activeView} handleNavigate={handleNavigate} handleConnectAsAdmin={handleConnectAsAdmin} handleOpenChatAdmin={handleOpenChatAdmin} cachedAdmins={cachedAdmins} adminsRefreshing={adminsRefreshing} adminsError={adminsError} fetchAdminsCache={fetchAdminsCache} docInitialTab={docInitialTab} setDocInitialTab={setDocInitialTab} docKey={docKey} setDocKey={setDocKey} setActiveView={setActiveView} saFirstName={saFirstName} saLastName={saLastName} setSaFirstName={setSaFirstName} setSaLastName={setSaLastName} appIconSelectionMode={appIconSelectionMode} handleAppIconSelected={handleAppIconSelected} handleChangeAppIcon={handleChangeAppIcon} />
+              <SAViewRouter activeView={activeView} handleNavigate={handleNavigate} handleConnectAsAdmin={handleConnectAsAdmin} handleConnectAsCompanySuperAdmin={handleConnectAsCompanySuperAdmin} handleOpenChatAdmin={handleOpenChatAdmin} cachedAdmins={cachedAdmins} adminsRefreshing={adminsRefreshing} adminsError={adminsError} fetchAdminsCache={fetchAdminsCache} docInitialTab={docInitialTab} setDocInitialTab={setDocInitialTab} docKey={docKey} setDocKey={setDocKey} setActiveView={setActiveView} saFirstName={saFirstName} saLastName={saLastName} setSaFirstName={setSaFirstName} setSaLastName={setSaLastName} appIconSelectionMode={appIconSelectionMode} handleAppIconSelected={handleAppIconSelected} handleChangeAppIcon={handleChangeAppIcon} />
             </Suspense>
           )}
         </main>

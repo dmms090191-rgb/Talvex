@@ -8,8 +8,15 @@ export interface ThemeTokensData {
   zone_css: Record<string, string | null>;
   text_overrides: Record<string, string>;
   background_image?: string | null;
+  background_image_zoom?: number | null;
+  background_image_position_x?: number | null;
+  background_image_position_y?: number | null;
+  background_image_fit?: string | null;
   typography_overrides?: Record<string, string | null> | null;
   panel_palette?: { background: string; surface: string; accent: string } | null;
+  button_overrides?: Record<string, unknown> | null;
+  card_overrides?: Record<string, unknown> | null;
+  vc_overrides?: Record<string, unknown> | null;
 }
 
 export interface ThemeConfigRow {
@@ -27,6 +34,9 @@ export interface ThemeConfigRow {
   theme_tokens: ThemeTokensData | null;
   description: string | null;
   created_from_theme: string | null;
+  owner_user_id: string | null;
+  owner_company_id: string | null;
+  is_shared: boolean;
 }
 
 export function useThemeConfig() {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Star, ChevronUp, ChevronDown, MoreVertical, Wrench, Crown, Award, Pencil, FolderInput, Check } from 'lucide-react';
+import { Eye, EyeOff, Star, ChevronUp, ChevronDown, MoreVertical, Wrench, Crown, Award, Pencil, FolderInput, Check, Share2 } from 'lucide-react';
 import { ThemePreview } from '../../../../components/theme/ThemeCard';
 import { ALL_THEMES } from '../../../../components/theme/themeData';
 import { useThemeTokens } from '../../../../hooks/useThemeTokens';
@@ -12,6 +12,7 @@ interface Props {
   onStatusChange: (status: ThemeStatus) => void;
   onToggleRecommended: () => void;
   onToggleFavorite: () => void;
+  onToggleShared: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRename: () => void;
@@ -23,7 +24,7 @@ interface Props {
   onToggleSelect?: () => void;
 }
 
-export default function SAThemeCard({ config, categoryName, onStatusChange, onToggleRecommended, onToggleFavorite, onMoveUp, onMoveDown, onRename, onMove, isFirst, isLast, selectionMode, isSelected, onToggleSelect }: Props) {
+export default function SAThemeCard({ config, categoryName, onStatusChange, onToggleRecommended, onToggleFavorite, onToggleShared, onMoveUp, onMoveDown, onRename, onMove, isFirst, isLast, selectionMode, isSelected, onToggleSelect }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const t = useThemeTokens();
   const themeEntry = ALL_THEMES.find(th => th.value === config.theme_key);
@@ -61,11 +62,21 @@ export default function SAThemeCard({ config, categoryName, onStatusChange, onTo
         </button>
       )}
 
-      {/* Recommended badge */}
-      {config.is_recommended && !selectionMode && (
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.30)', color: '#60a5fa' }}>
-          <Award className="w-2.5 h-2.5" />
-          Recommande
+      {/* Recommended / Shared badge */}
+      {!selectionMode && (config.is_recommended || config.is_shared) && (
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1">
+          {config.is_recommended && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.30)', color: '#60a5fa' }}>
+              <Award className="w-2.5 h-2.5" />
+              Recommande
+            </div>
+          )}
+          {config.is_shared && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider" style={{ background: 'rgba(34,211,238,0.12)', border: '1px solid rgba(34,211,238,0.25)', color: '#22d3ee' }}>
+              <Share2 className="w-2.5 h-2.5" />
+              Partage
+            </div>
+          )}
         </div>
       )}
 
@@ -88,6 +99,7 @@ export default function SAThemeCard({ config, categoryName, onStatusChange, onTo
                 <MenuBtn icon={<Crown className="w-3.5 h-3.5" />} label="Premium" active={config.status === 'premium'} onClick={() => { setMenuOpen(false); onStatusChange('premium'); }} />
                 <div className="mx-2 my-1 h-px bg-white/[0.06]" />
                 <MenuBtn icon={<Award className="w-3.5 h-3.5" />} label={config.is_recommended ? 'Retirer recommande' : 'Recommander'} onClick={() => { setMenuOpen(false); onToggleRecommended(); }} />
+                <MenuBtn icon={<Share2 className="w-3.5 h-3.5" />} label={config.is_shared ? 'Retirer le partage' : 'Partager a tous'} active={config.is_shared} onClick={() => { setMenuOpen(false); onToggleShared(); }} />
               </div>
             </>
           )}

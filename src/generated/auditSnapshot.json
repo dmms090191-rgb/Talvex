@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-10T18:10:47.268Z",
+  "generatedAt": "2026-06-13T15:57:47.796Z",
   "anyCount": 1,
   "anyOccurrences": [
     {
@@ -10,14 +10,25 @@
   ],
   "unusedImportCount": 0,
   "unusedImports": [],
-  "largeFileCount": 0,
-  "largeFiles": [],
+  "largeFileCount": 2,
+  "largeFiles": [
+    {
+      "file": "src/pages/company-super-admin/CompanySuperAdminDashboard.tsx",
+      "lines": 301,
+      "overflow": 1
+    },
+    {
+      "file": "src/pages/company-super-admin/CSAAdminsList.tsx",
+      "lines": 310,
+      "overflow": 10
+    }
+  ],
   "tscErrorCount": 0,
   "tscErrors": [],
   "eslintErrorCount": 0,
   "eslintWarningCount": 0,
   "eslintIssues": [],
-  "totalFilesAnalyzed": 840,
-  "totalLinesAnalyzed": 112751,
-  "totalOverflowLines": 0
+  "totalFilesAnalyzed": 867,
+  "totalLinesAnalyzed": 116275,
+  "totalOverflowLines": 11
 }

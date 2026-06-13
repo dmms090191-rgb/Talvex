@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LogOut, ChevronLeft, ArrowUpDown } from 'lucide-react';
+import { LogOut, ChevronLeft, ArrowUpDown, ArrowLeft } from 'lucide-react';
 import type { getThemeTokens } from '../../lib/themeTokens';
 
 interface SidebarFooterActionsProps {
@@ -10,10 +10,12 @@ interface SidebarFooterActionsProps {
   reordering?: boolean;
   tokens: ReturnType<typeof getThemeTokens>;
   rdrFontFamily?: string;
+  onBackToRoisAdmin?: () => void;
+  backLabel?: string;
 }
 
 export default function SidebarFooterActions({
-  collapsed, onLogout, onCollapse, onReorganize, reordering, tokens: t, rdrFontFamily,
+  collapsed, onLogout, onCollapse, onReorganize, reordering, tokens: t, rdrFontFamily, onBackToRoisAdmin, backLabel,
 }: SidebarFooterActionsProps) {
   return (
     <div
@@ -35,17 +37,19 @@ export default function SidebarFooterActions({
           />
         )}
 
-        <FooterButton
-          icon={<LogOut className="w-4 h-4" />}
-          label="Deconnexion"
-          collapsed={collapsed}
-          restColor={t.sidebar.logoutText}
-          hoverBg="rgba(239,68,68,0.08)"
-          hoverColor={t.sidebar.logoutHover}
-          hoverBorder="rgba(239,68,68,0.15)"
-          onClick={onLogout}
-          fontFamily={rdrFontFamily}
-        />
+        {!onBackToRoisAdmin && (
+          <FooterButton
+            icon={<LogOut className="w-4 h-4" />}
+            label="Deconnexion"
+            collapsed={collapsed}
+            restColor={t.sidebar.logoutText}
+            hoverBg="rgba(239,68,68,0.08)"
+            hoverColor={t.sidebar.logoutHover}
+            hoverBorder="rgba(239,68,68,0.15)"
+            onClick={onLogout}
+            fontFamily={rdrFontFamily}
+          />
+        )}
 
         <FooterButton
           icon={
@@ -61,6 +65,21 @@ export default function SidebarFooterActions({
           onClick={onCollapse}
           fontFamily={rdrFontFamily}
         />
+
+        {onBackToRoisAdmin && (
+          <FooterButton
+            icon={<ArrowLeft className="w-4 h-4" />}
+            label={backLabel || "Retour Rois Admin"}
+            collapsed={collapsed}
+            restColor="#f59e0b"
+            hoverBg="rgba(245,158,11,0.10)"
+            hoverColor="#f59e0b"
+            hoverBorder="rgba(245,158,11,0.25)"
+            hoverShadow="0 0 12px rgba(245,158,11,0.15)"
+            onClick={onBackToRoisAdmin}
+            fontFamily={rdrFontFamily}
+          />
+        )}
       </div>
     </div>
   );

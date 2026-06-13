@@ -43,7 +43,7 @@ export default function AdminDashboard(props: AdminDashboardProps) {
   );
 }
 
-function AdminDashboardInner({ onLogout, onConnectAsVendor, onConnectAsClient, impersonatedAdmin, onBackToSuperAdmin, isSAViewing }: AdminDashboardProps) {
+function AdminDashboardInner({ onLogout, onConnectAsVendor, onConnectAsClient, impersonatedAdmin, onBackToSuperAdmin, backLabel, isSAViewing }: AdminDashboardProps) {
   const t = useThemeTokens();
   const companyId = useCompanyId();
   const adminScopeKey = companyId ? `co_${companyId}` : 'co_none';
@@ -154,6 +154,8 @@ function AdminDashboardInner({ onLogout, onConnectAsVendor, onConnectAsClient, i
           editorZone2Bg={zone2Bg}
           logoZoneRef={logoZoneRef}
           sidebarBodyRef={sidebarBodyRef}
+          onBackToRoisAdmin={onBackToSuperAdmin}
+          backLabel={backLabel}
         />
       </div>
       <div className="flex flex-col flex-1 min-h-0">
@@ -189,24 +191,23 @@ function AdminDashboardInner({ onLogout, onConnectAsVendor, onConnectAsClient, i
           onRescheduleRequestEntryClick={handleRescheduleRequestEntryClick}
           impersonatedAdmin={impersonatedAdmin}
           onBackToSuperAdmin={onBackToSuperAdmin}
-          demoStatus={isSAViewing ? demoStatus : 'idle'}
-          demoSlot={isSAViewing && impersonatedAdmin ? (
-            <DemoEmitterLayer
-              activeView={activeView}
-              viewLabel={getBreadcrumb()}
-              targetUserId={impersonatedAdmin.id}
-              targetRole="admin"
-              targetName={[impersonatedAdmin.first_name, impersonatedAdmin.last_name].filter(Boolean).join(' ') || impersonatedAdmin.email}
-              companyId={impersonatedAdmin.company_id ?? null}
-              tokens={t}
-            />
-          ) : undefined}
           appIconUrl={configIconUrl ?? activeLogoUrl}
           appName={configAppName || companyName || undefined}
           topbarRef={topbarZoneRef}
           editorZone3Bg={zone3Bg}
         />
         <EditorToolbar onSaveTheme={() => setSaveThemeOpen(true)} onResetPositions={handleResetPanelPositions} onAlignPanels={handleAlignPanels} onSaveSession={handleSaveSession} />
+        {isSAViewing && impersonatedAdmin && (
+          <DemoEmitterLayer
+            activeView={activeView}
+            viewLabel={getBreadcrumb()}
+            targetUserId={impersonatedAdmin.id}
+            targetRole="admin"
+            targetName={[impersonatedAdmin.first_name, impersonatedAdmin.last_name].filter(Boolean).join(' ') || impersonatedAdmin.email}
+            companyId={impersonatedAdmin.company_id ?? null}
+            tokens={t}
+          />
+        )}
         <SimulationBanner />
         {!isSAViewing && <DemoReceiverLayer userId={adminAuthId} onViewChange={(v) => setActiveView(v as ActiveView)} />}
         <main
@@ -261,7 +262,7 @@ function AdminDashboardInner({ onLogout, onConnectAsVendor, onConnectAsClient, i
         logoZoneRef={logoZoneRef} sidebarBodyRef={sidebarBodyRef}
         topbarZoneRef={topbarZoneRef} contentZoneRef={contentZoneRef}
       />
-      <EditorSaveThemeModal open={saveThemeOpen} onClose={() => setSaveThemeOpen(false)} />
+      <EditorSaveThemeModal open={saveThemeOpen} onClose={() => setSaveThemeOpen(false)} ownerUserId={effectiveAdminId} ownerCompanyId={companyId} />
     </div>
     </SimulationProvider>
   );

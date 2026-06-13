@@ -13,12 +13,13 @@ import { useVCElement } from '../../components/visualCustomize/useVCElement';
 import type { AdminNotifEntry } from '../../hooks/useUnreadSuperAdminMessages';
 
 const viewLabels: Record<string, string> = {
-  dashboard: 'Dashboard', admins: 'Liste admins', 'chat-admin': 'Chat Admin',
-  'documentation-crm': 'Documentation CRM', system: 'System', sauvegarde: 'Sauvegarde & restauration',
-  'mon-compte': 'Mon compte', 'tests-systeme': 'Tests Système', 'crm-societe': 'CRM Societe',
-  statuts: 'Statuts', 'api-ia': 'API IA', 'cerveau-ia': 'Cerveau IA', sites: 'Sites & Domaines',
-  'fonctions-talvex': 'Fonctions Talvex', 'site-talvex': 'Site', application: 'Application',
-  logo: 'Logo', ameliorations: 'Ameliorations', tuto: 'Tuto', themes: 'Gestion themes', 'editeur-ia': 'Editeur IA',
+  dashboard: 'Dashboard RA', 'super-admins': 'Liste Super Admins RA', admins: 'Liste admins RA', 'chat-admin': 'Chat Admin RA',
+  'documentation-crm': 'Documentation CRM RA', system: 'System RA', sauvegarde: 'Sauvegarde & restauration RA',
+  'mon-compte': 'Mon compte RA', 'tests-systeme': 'Tests Systeme RA', 'crm-societe': 'CRM Societe RA',
+  statuts: 'Statuts RA', 'api-ia': 'API IA RA', 'cerveau-ia': 'Cerveau IA SA RA', sites: 'Sites & Domaines RA',
+  'fonctions-talvex': 'Fonctions Talvex RA', 'site-talvex': 'Site RA', application: 'Application RA',
+  logo: 'Logo RA', ameliorations: 'Ameliorations RA', tuto: 'Tuto RA', themes: 'Gestion themes RA', 'editeur-ia': 'Editeur IA RA',
+  'calquer-logo': 'Calquer logo RA',
 };
 
 interface SuperAdminTopBarProps {
@@ -86,7 +87,7 @@ export default function SuperAdminTopBar({ activeView, onMobileMenuToggle, unrea
               <Menu className="w-5 h-5" />
             </button>
           )}
-          <span className="text-xs hidden md:inline" style={{ color: vcBreadcrumb.style?.color ?? t.topbar.breadcrumbPrefix }}>Super Admin</span>
+          <span className="text-xs hidden md:inline" style={{ color: vcBreadcrumb.style?.color ?? t.topbar.breadcrumbPrefix }}>ROIS ADMIN</span>
           <ChevronRight className="w-3 h-3 hidden md:block" style={{ color: vcBreadcrumb.style?.color ?? t.topbar.border }} />
           <span className="hidden md:inline text-sm font-semibold truncate" style={{ color: vcBreadcrumb.style?.color ?? t.topbar.breadcrumbText }}>
             {viewLabels[activeView] || 'Dashboard'}

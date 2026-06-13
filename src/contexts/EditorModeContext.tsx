@@ -69,7 +69,7 @@ export function EditorModeProvider({ children, scopeKey = 'sa' }: { children: Re
     saveCustomPanelPalette(null);
   }, []);
 
-  const loadCustomTheme = useCallback((themeKey: string, zones: Record<EditorZone, ZoneBackground | null>, texts: Record<string, string>, bgImage?: string | null, typoOvr?: TypographyOverrides | null, palette?: CustomPanelPalette | null, btnOverrides?: Record<string, ButtonOverride> | null, bgImageZoom?: number | null, bgImagePosX?: number | null, bgImagePosY?: number | null, cardOvr?: Record<string, CardOverride> | null) => {
+  const loadCustomTheme = useCallback((themeKey: string, zones: Record<EditorZone, ZoneBackground | null>, texts: Record<string, string>, bgImage?: string | null, typoOvr?: TypographyOverrides | null, palette?: CustomPanelPalette | null, btnOverrides?: Record<string, ButtonOverride> | null, bgImageZoom?: number | null, bgImagePosX?: number | null, bgImagePosY?: number | null, cardOvr?: Record<string, CardOverride> | null, bgImageFit?: BgImageFitMode | null) => {
     setEditorOpen(true);
     setEditorTabRaw('fonds');
     setActiveZoneRaw('zone1');
@@ -77,7 +77,7 @@ export function EditorModeProvider({ children, scopeKey = 'sa' }: { children: Re
     cacheZoneOverrides(zones);
     setTextOverrides(texts);
     cacheTextOverrides(texts);
-    bgImg.applyBgImageFromTheme(bgImage, bgImageZoom, bgImagePosX, bgImagePosY);
+    bgImg.applyBgImageFromTheme(bgImage, bgImageZoom, bgImagePosX, bgImagePosY, bgImageFit);
     typo.applyTypographyFromTheme(typoOvr);
     setPreviewState(null);
     setTextPreviewState({});

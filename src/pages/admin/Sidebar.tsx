@@ -27,6 +27,8 @@ interface SidebarProps {
   editorZone2Bg?: string;
   logoZoneRef?: React.RefObject<HTMLDivElement | null>;
   sidebarBodyRef?: React.RefObject<HTMLDivElement | null>;
+  onBackToRoisAdmin?: () => void;
+  backLabel?: string;
 }
 
 const DEFAULT_SECTIONS: SidebarSection[] = [
@@ -66,7 +68,7 @@ const DEFAULT_SECTIONS: SidebarSection[] = [
   ] },
 ];
 
-export default function Sidebar({ activeView, onNavigate, collapsed, onCollapse, onLogout, editorZone1Bg, editorZone2Bg, logoZoneRef, sidebarBodyRef }: SidebarProps) {
+export default function Sidebar({ activeView, onNavigate, collapsed, onCollapse, onLogout, editorZone1Bg, editorZone2Bg, logoZoneRef, sidebarBodyRef, onBackToRoisAdmin, backLabel }: SidebarProps) {
   const t = useThemeTokens();
   const editorCtx = useEditorModeSafe();
   const { customThemeOverrides } = useTheme();
@@ -171,6 +173,8 @@ export default function Sidebar({ activeView, onNavigate, collapsed, onCollapse,
           reordering={order.reordering}
           tokens={t}
           rdrFontFamily={rdrFont}
+          onBackToRoisAdmin={onBackToRoisAdmin}
+          backLabel={backLabel}
         />
       </div>
     </aside>

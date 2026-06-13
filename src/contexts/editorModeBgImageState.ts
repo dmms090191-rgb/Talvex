@@ -55,7 +55,7 @@ export function useEditorBgImageState() {
     cacheBgImageFit('cover');
   }, []);
 
-  const applyBgImageFromTheme = useCallback((bgImage: string | null | undefined, zoom?: number | null, posX?: number | null, posY?: number | null) => {
+  const applyBgImageFromTheme = useCallback((bgImage: string | null | undefined, zoom?: number | null, posX?: number | null, posY?: number | null, fit?: BgImageFitMode | null) => {
     setBackgroundImageRaw(bgImage ?? null);
     cacheBgImage(bgImage ?? null);
     const z = (zoom != null && zoom >= 50 && zoom <= 200) ? zoom : 100;
@@ -66,6 +66,9 @@ export function useEditorBgImageState() {
     setBgPosXRaw(x);
     setBgPosYRaw(y);
     cacheBgImagePosition(x, y);
+    const f: BgImageFitMode = (fit === 'contain' || fit === 'fill') ? fit : 'cover';
+    setBgImageFitRaw(f);
+    cacheBgImageFit(f);
   }, []);
 
   return {

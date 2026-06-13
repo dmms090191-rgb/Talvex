@@ -7,7 +7,7 @@ import TimezoneModal from '../../components/TimezoneSearchDropdown';
 import { ClockButton, ProfileMenu } from './components/topbar';
 import AdminMobileBellMenu from './components/topbar/AdminMobileBellMenu';
 import AdminDesktopNotifPill from './components/topbar/AdminDesktopNotifPill';
-import { PhoneButton, EditorButton, ImpersonationBanner } from './components/topbar/TopBarActionButtons';
+import { PhoneButton, EditorButton } from './components/topbar/TopBarActionButtons';
 import FloatingPhoneWindow from '../../components/FloatingPhoneWindow';
 import { useFloatingPhoneState } from '../../components/useFloatingPhoneState';
 import { useEditorModeSafe } from '../../contexts/EditorModeContext';
@@ -140,9 +140,6 @@ export default function TopBar({ breadcrumb, onMobileMenuToggle, adminName = 'Ad
 
   return (
     <>
-    {impersonatingAdmin && (
-      <ImpersonationBanner adminName={impersonatedAdminName} demoStatus={demoStatus} demoSlot={demoSlot} onBackToSuperAdmin={onBackToSuperAdmin} />
-    )}
     <header
       ref={topbarRef as React.RefObject<HTMLElement> | undefined}
       className="relative z-30 flex items-center justify-between px-3 sm:px-4 md:px-6 h-14 md:h-16 flex-shrink-0"

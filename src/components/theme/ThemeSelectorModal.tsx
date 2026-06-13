@@ -1,19 +1,19 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { Sparkles, Search, Paintbrush, Star } from 'lucide-react';
+import { Sparkles, Search, Paintbrush, Star, Share2 } from 'lucide-react';
 import { useTheme, type Theme, type CustomThemeOverrides } from '../../contexts/ThemeContext';
 import { useEditorModeSafe } from '../../contexts/EditorModeContext';
 import { useVisualCustomizeSafe } from '../visualCustomize/VisualCustomizeContext';
 import { type ThemeEntry } from './themeData';
 import { ThemeCard } from './ThemeCard';
 import GlassPresetsGrid from './GlassPresetsGrid';
-import { CUSTOM_CATEGORY, FAV_TAB, type CustomThemeRow } from './themeSelectorTypes';
+import { CUSTOM_CATEGORY, FAV_TAB, PERSONAL_TAB, COMMUNITY_TAB, type CustomThemeRow } from './themeSelectorTypes';
 import { SectionHeader, ModalHeader, TabBar, CustomThemeCard } from './ThemeSelectorParts';
 import { useThemeSelectorData, useThemeSelectorFilters } from './useThemeSelectorData';
 
-interface Props { open: boolean; onClose: () => void; }
+interface Props { open: boolean; onClose: () => void; effectiveUserId?: string | null; }
 
-export default function ThemeSelectorModal({ open, onClose }: Props) {
+export default function ThemeSelectorModal({ open, onClose, effectiveUserId }: Props) {
   const [tab, setTab] = useState('all');
   const [search, setSearch] = useState('');
   const { theme, setTheme, glassConfig, setGlassConfig, customThemeKey, applyCustomTheme, clearCustomTheme } = useTheme();
@@ -21,12 +21,31 @@ export default function ThemeSelectorModal({ open, onClose }: Props) {
   const vc = useVisualCustomizeSafe();
 
   const {
-    configMap, customThemes, userFavorites, toggleFavorite,
+    configMap, customThemes, personalCustomThemes, sharedCustomThemes,
+    userFavorites, toggleFavorite,
     visibleThemes, tabs, recommendedKeys, premiumKeys,
-  } = useThemeSelectorData(open);
+  } = useThemeSelectorData(open, effectiveUserId);
 
   const { entries, filteredCustomThemes, favoriteStandard, favoriteCustom, totalFavorites } =
     useThemeSelectorFilters(tab, search, visibleThemes, customThemes, configMap, userFavorites);
+
+  const filteredPersonal = useMemo(() => {
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      return personalCustomThemes.filter(ct => ct.label.toLowerCase().includes(q));
+    }
+    if (tab === 'all' || tab === CUSTOM_CATEGORY || tab === PERSONAL_TAB || tab === FAV_TAB) return personalCustomThemes;
+    return [];
+  }, [tab, search, personalCustomThemes]);
+
+  const filteredShared = useMemo(() => {
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      return sharedCustomThemes.filter(ct => ct.label.toLowerCase().includes(q));
+    }
+    if (tab === 'all' || tab === CUSTOM_CATEGORY || tab === COMMUNITY_TAB || tab === FAV_TAB) return sharedCustomThemes;
+    return [];
+  }, [tab, search, sharedCustomThemes]);
 
   const totalCount = visibleThemes.length + customThemes.length;
 
@@ -41,71 +60,13 @@ export default function ThemeSelectorModal({ open, onClose }: Props) {
   }
 
   function handleSelectCustom(ct: CustomThemeRow) {
-    editorCtx?.clearAllOverrides();
-    const baseTheme = (ct.created_from_theme || 'dark') as Theme;
-    const tokens = ct.theme_tokens;
-    const bgImage = (tokens?.background_image as string) || null;
-    const bgImageZoom = typeof tokens?.background_image_zoom === 'number' ? tokens.background_image_zoom : null;
-    const bgImagePosX = typeof tokens?.background_image_position_x === 'number' ? tokens.background_image_position_x : null;
-    const bgImagePosY = typeof tokens?.background_image_position_y === 'number' ? tokens.background_image_position_y : null;
-    const typo = (tokens?.typography_overrides as Record<string, string | null> | null) || null;
-    const palette = (tokens?.panel_palette as { background: string; surface: string; accent: string } | null) || null;
-    const btnOverrides = (tokens?.button_overrides as Record<string, { bg?: unknown; textColor?: string; opacityMode?: 'transparent' | 'opaque' }> | null) || null;
-    const overrides: CustomThemeOverrides = {
-      zone_overrides: (tokens?.zone_overrides ?? {}) as Record<string, unknown>,
-      zone_css: (tokens?.zone_css ?? {}) as Record<string, string | null>,
-      text_overrides: (tokens?.text_overrides ?? {}) as Record<string, string>,
-      background_image: bgImage,
-      typography_overrides: typo,
-    };
-    applyCustomTheme(ct.theme_key, baseTheme, overrides);
-    if (bgImage) editorCtx?.setBackgroundImage(bgImage);
-    if (bgImageZoom != null && editorCtx) editorCtx.setBackgroundImageZoom(bgImageZoom);
-    if ((bgImagePosX != null || bgImagePosY != null) && editorCtx) {
-      editorCtx.setBackgroundImagePosition(bgImagePosX ?? 0, bgImagePosY ?? 0);
-    }
-    if (typo && editorCtx) {
-      editorCtx.setTypographyPreview(typo);
-      editorCtx.commitTypography();
-    }
-    if (editorCtx) {
-      if (palette) {
-        editorCtx.setPanelPalettePreview(palette);
-        editorCtx.commitPanelPalette();
-      } else {
-        editorCtx.resetPanelPalette();
-      }
-      if (btnOverrides) {
-        Object.entries(btnOverrides).forEach(([k, v]) => {
-          if (v && typeof v === 'object') {
-            if (v.bg) editorCtx.applyButtonBg(k, v.bg as import('../../contexts/editorModeTypes').ZoneBackground, v.opacityMode);
-            if (v.textColor) editorCtx.applyButtonTextColor(k, v.textColor);
-          }
-        });
-      }
-      const cardOvr = (tokens?.card_overrides as Record<string, { bg?: unknown }> | null) || null;
-      if (cardOvr) {
-        Object.entries(cardOvr).forEach(([k, v]) => {
-          if (v && typeof v === 'object' && v.bg) {
-            editorCtx.applyCardBg(k, v.bg as import('../../contexts/editorModeTypes').ZoneBackground);
-          }
-        });
-      }
-    }
-    const vcOvr = tokens?.vc_overrides as Record<string, { type: string; config: unknown }> | null;
-    if (vc) {
-      if (vcOvr && Object.keys(vcOvr).length > 0) {
-        const typed = vcOvr as Parameters<typeof vc.replaceAllConfigs>[0];
-        vc.replaceAllConfigs(typed);
-      } else {
-        vc.clearAllConfigs();
-      }
-    }
+    applyCustomFromTokens(ct, editorCtx, vc, applyCustomTheme, clearCustomTheme);
   }
 
   const showFavoritesSection = tab === 'all' && totalFavorites > 0;
-  const showCustomSection = (tab === 'all' || tab === CUSTOM_CATEGORY) && filteredCustomThemes.length > 0;
-  const showStandardSection = tab !== CUSTOM_CATEGORY && tab !== FAV_TAB;
+  const showPersonalSection = tab === 'all' || tab === CUSTOM_CATEGORY || tab === PERSONAL_TAB;
+  const showCommunitySection = tab === 'all' || tab === CUSTOM_CATEGORY || tab === COMMUNITY_TAB;
+  const showStandardSection = tab !== CUSTOM_CATEGORY && tab !== FAV_TAB && tab !== PERSONAL_TAB && tab !== COMMUNITY_TAB;
   const isFavTab = tab === FAV_TAB;
 
   return createPortal(
@@ -141,6 +102,8 @@ export default function ThemeSelectorModal({ open, onClose }: Props) {
           customThemeKey={customThemeKey}
           favCount={totalFavorites}
           userFavorites={userFavorites}
+          personalCount={personalCustomThemes.length}
+          communityCount={sharedCustomThemes.length}
         />
 
         <div className="mx-5 sm:mx-8 h-px flex-shrink-0 bg-white/[0.06]" />
@@ -177,12 +140,23 @@ export default function ThemeSelectorModal({ open, onClose }: Props) {
                 </>
               )}
 
-              {!isFavTab && showCustomSection && (
+              {!isFavTab && showPersonalSection && filteredPersonal.length > 0 && (
                 <>
-                  <SectionHeader icon={<Paintbrush className="w-3.5 h-3.5" />} label="Personnalises" count={filteredCustomThemes.length} color="#f59e0b" />
+                  <SectionHeader icon={<Paintbrush className="w-3.5 h-3.5" />} label="Themes Personnels" count={filteredPersonal.length} color="#f59e0b" />
                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 mb-6">
-                    {filteredCustomThemes.map(ct => (
+                    {filteredPersonal.map(ct => (
                       <CustomThemeCard key={ct.theme_key} ct={ct} active={customThemeKey === ct.theme_key} onSelect={() => handleSelectCustom(ct)} isFavorite={userFavorites.has(ct.theme_key)} onToggleFavorite={() => toggleFavorite(ct.theme_key)} />
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {!isFavTab && showCommunitySection && filteredShared.length > 0 && (
+                <>
+                  <SectionHeader icon={<Share2 className="w-3.5 h-3.5" />} label="Themes Communaute" count={filteredShared.length} color="#22d3ee" />
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                    {filteredShared.map(ct => (
+                      <CustomThemeCard key={ct.theme_key} ct={ct} active={customThemeKey === ct.theme_key} onSelect={() => handleSelectCustom(ct)} isFavorite={userFavorites.has(ct.theme_key)} onToggleFavorite={() => toggleFavorite(ct.theme_key)} isShared />
                     ))}
                   </div>
                 </>
@@ -213,4 +187,89 @@ export default function ThemeSelectorModal({ open, onClose }: Props) {
     </div>,
     document.body,
   );
+}
+
+function applyCustomFromTokens(
+  ct: CustomThemeRow,
+  editorCtx: ReturnType<typeof useEditorModeSafe>,
+  vc: ReturnType<typeof useVisualCustomizeSafe>,
+  applyCustomTheme: (key: string, base: Theme, overrides: CustomThemeOverrides) => void,
+  clearCustomTheme: () => void,
+) {
+  editorCtx?.clearAllOverrides();
+  const baseTheme = (ct.created_from_theme || 'dark') as Theme;
+  const tokens = ct.theme_tokens;
+  const zoneOvr = (tokens?.zone_overrides ?? {}) as Record<string, { type: string; color?: string; opacity?: number; gradient?: { color1: string; color2: string; direction: number } }>;
+  const bgImage = (tokens?.background_image as string) || null;
+  const bgImageZoom = typeof tokens?.background_image_zoom === 'number' ? tokens.background_image_zoom : null;
+  const bgImagePosX = typeof tokens?.background_image_position_x === 'number' ? tokens.background_image_position_x : null;
+  const bgImagePosY = typeof tokens?.background_image_position_y === 'number' ? tokens.background_image_position_y : null;
+  const bgImageFit = (tokens?.background_image_fit as 'cover' | 'contain' | 'fill') || null;
+  const typo = (tokens?.typography_overrides as Record<string, string | null> | null) || null;
+  const palette = (tokens?.panel_palette as { background: string; surface: string; accent: string } | null) || null;
+  const btnOverrides = (tokens?.button_overrides as Record<string, { bg?: unknown; textColor?: string; opacityMode?: 'transparent' | 'opaque' }> | null) || null;
+  const overrides: CustomThemeOverrides = {
+    zone_overrides: zoneOvr as Record<string, unknown>,
+    zone_css: (tokens?.zone_css ?? {}) as Record<string, string | null>,
+    text_overrides: (tokens?.text_overrides ?? {}) as Record<string, string>,
+    background_image: bgImage,
+    typography_overrides: typo,
+  };
+  applyCustomTheme(ct.theme_key, baseTheme, overrides);
+  if (editorCtx) {
+    const zones = ['zone1', 'zone2', 'zone3', 'zone4'] as const;
+    for (const z of zones) {
+      const bg = zoneOvr[z];
+      if (bg && bg.type) {
+        editorCtx.applyZoneBackground(z, bg as import('../../contexts/editorModeTypes').ZoneBackground);
+      }
+    }
+    const textOvr = (tokens?.text_overrides ?? {}) as Record<string, string>;
+    Object.entries(textOvr).forEach(([k, v]) => {
+      editorCtx.applyTextColor(k, v);
+    });
+  }
+  if (bgImage) editorCtx?.setBackgroundImage(bgImage);
+  if (bgImageZoom != null && editorCtx) editorCtx.setBackgroundImageZoom(bgImageZoom);
+  if ((bgImagePosX != null || bgImagePosY != null) && editorCtx) {
+    editorCtx.setBackgroundImagePosition(bgImagePosX ?? 0, bgImagePosY ?? 0);
+  }
+  if (bgImageFit && editorCtx) editorCtx.setBackgroundImageFit(bgImageFit);
+  if (typo && editorCtx) {
+    editorCtx.setTypographyPreview(typo);
+    editorCtx.commitTypography();
+  }
+  if (editorCtx) {
+    if (palette) {
+      editorCtx.setPanelPalettePreview(palette);
+      editorCtx.commitPanelPalette();
+    } else {
+      editorCtx.resetPanelPalette();
+    }
+    if (btnOverrides) {
+      Object.entries(btnOverrides).forEach(([k, v]) => {
+        if (v && typeof v === 'object') {
+          if (v.bg) editorCtx.applyButtonBg(k, v.bg as import('../../contexts/editorModeTypes').ZoneBackground, v.opacityMode);
+          if (v.textColor) editorCtx.applyButtonTextColor(k, v.textColor);
+        }
+      });
+    }
+    const cardOvr = (tokens?.card_overrides as Record<string, { bg?: unknown }> | null) || null;
+    if (cardOvr) {
+      Object.entries(cardOvr).forEach(([k, v]) => {
+        if (v && typeof v === 'object' && v.bg) {
+          editorCtx.applyCardBg(k, v.bg as import('../../contexts/editorModeTypes').ZoneBackground);
+        }
+      });
+    }
+  }
+  const vcOvr = tokens?.vc_overrides as Record<string, { type: string; config: unknown }> | null;
+  if (vc) {
+    if (vcOvr && Object.keys(vcOvr).length > 0) {
+      const typed = vcOvr as Parameters<typeof vc.replaceAllConfigs>[0];
+      vc.replaceAllConfigs(typed);
+    } else {
+      vc.clearAllConfigs();
+    }
+  }
 }

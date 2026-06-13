@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type { Theme, GlassConfig, CustomThemeOverrides } from './themeTypes';
 
-export type PanelRole = 'admin' | 'vendor' | 'client' | 'super_admin';
+export type PanelRole = 'admin' | 'vendor' | 'client' | 'super_admin' | 'company_super_admin';
 
 export type ThemeScope =
   | { kind: 'sa'; userId: string }
@@ -28,6 +28,9 @@ export function isValidTheme(v: unknown): v is Theme {
 export function resolveScope(panelRole: PanelRole, sessionUserId: string | null, companyId: string | null): ThemeScope {
   if (panelRole === 'super_admin') {
     return sessionUserId ? { kind: 'sa', userId: sessionUserId } : { kind: 'none' };
+  }
+  if (panelRole === 'company_super_admin' && companyId) {
+    return { kind: 'company', companyId };
   }
   if (companyId) return { kind: 'company', companyId };
   return { kind: 'none' };

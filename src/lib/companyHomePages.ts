@@ -79,6 +79,17 @@ export async function getPlatformHomePage(): Promise<CompanyHomePage | null> {
   return data;
 }
 
+export async function getHomePageById(id: string): Promise<CompanyHomePage | null> {
+  const { data, error } = await supabase
+    .from('company_home_pages')
+    .select('*')
+    .eq('id', id)
+    .eq('is_active', true)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function getHomePageBySlug(slug: string): Promise<CompanyHomePage | null> {
   const { data, error } = await supabase
     .from('company_home_pages')
@@ -103,12 +114,22 @@ export async function getHomePageByDomain(domain: string): Promise<CompanyHomePa
 }
 
 export async function upsertHomePage(page: CompanyHomePageUpsert): Promise<CompanyHomePage> {
+  if (page.company_id) {
+    const existing = await getHomePageByCompanyId(page.company_id);
+    if (existing) {
+      const { data, error } = await supabase
+        .from('company_home_pages')
+        .update({ ...page, updated_at: new Date().toISOString() })
+        .eq('id', existing.id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+  }
   const { data, error } = await supabase
     .from('company_home_pages')
-    .upsert(
-      { ...page, updated_at: new Date().toISOString() },
-      { onConflict: 'company_id' }
-    )
+    .insert({ ...page, updated_at: new Date().toISOString() })
     .select()
     .single();
   if (error) throw error;

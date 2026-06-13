@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { LogIn, Loader2, AlertCircle } from 'lucide-react';
 import LoginModal from '../../components/LoginModal';
-import { getHomePageBySlug, getTemplateById, type CompanyHomePage } from '../../lib/companyHomePages';
+import { getHomePageBySlug, getHomePageById, getTemplateById, type CompanyHomePage } from '../../lib/companyHomePages';
 import { getTemplateComponent, type SectionOverride } from '../superadmin/views/site-builder/templates/templateRegistry';
 import { supabase } from '../../lib/supabase';
 
 interface Props {
-  slug: string;
+  slug?: string | null;
+  pageId?: string | null;
   domainCompanyId?: string | null;
   onLogin?: () => void;
 }
@@ -19,7 +20,7 @@ interface PublishedSectionRow {
   published_styles: Record<string, string> | null;
 }
 
-export default function CompanySitePage({ slug, domainCompanyId, onLogin: onLoginProp }: Props) {
+export default function CompanySitePage({ slug, pageId, domainCompanyId, onLogin: onLoginProp }: Props) {
   const [page, setPage] = useState<CompanyHomePage | null>(null);
   const [templateKey, setTemplateKey] = useState<string | null>(null);
   const [sectionOverrides, setSectionOverrides] = useState<Record<string, SectionOverride> | undefined>();
@@ -36,7 +37,11 @@ export default function CompanySitePage({ slug, domainCompanyId, onLogin: onLogi
     }
     (async () => {
       try {
-        const data = await getHomePageBySlug(slug);
+        const data = slug
+          ? await getHomePageBySlug(slug)
+          : pageId
+            ? await getHomePageById(pageId)
+            : null;
         if (!data) { setNotFound(true); return; }
         setPage(data);
         if (data.active_template_id) {
@@ -72,7 +77,7 @@ export default function CompanySitePage({ slug, domainCompanyId, onLogin: onLogi
         setLoading(false);
       }
     })();
-  }, [slug]);
+  }, [slug, pageId]);
 
   const effectiveCompanyId = domainCompanyId ?? page?.company_id ?? null;
 

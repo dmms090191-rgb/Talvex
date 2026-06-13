@@ -16,6 +16,7 @@ export interface AdminDashboardProps {
   onConnectAsClient?: (client: ImpersonatedClient) => void;
   impersonatedAdmin?: ImpersonatedAdminInfo | null;
   onBackToSuperAdmin?: () => void;
+  backLabel?: string;
   isSAViewing?: boolean;
 }
 

@@ -1,7 +1,7 @@
-import { X, Sparkles, Layers, Search, Check, Paintbrush, Star } from 'lucide-react';
+import { X, Sparkles, Layers, Search, Check, Paintbrush, Star, Share2 } from 'lucide-react';
 import type { ThemeEntry } from './themeData';
 import { FavoriteButton } from './ThemeCard';
-import { CUSTOM_CATEGORY, FAV_TAB, type ThemeConfigLite, type CustomThemeRow } from './themeSelectorTypes';
+import { CUSTOM_CATEGORY, FAV_TAB, PERSONAL_TAB, COMMUNITY_TAB, type ThemeConfigLite, type CustomThemeRow } from './themeSelectorTypes';
 
 export function SectionHeader({ icon, label, count, color }: { icon: React.ReactNode; label: string; count: number; color: string }) {
   return (
@@ -40,7 +40,7 @@ export function ModalHeader({ search, onSearchChange, onClose, themeCount }: {
   );
 }
 
-export function TabBar({ tab, onTab, activeTheme, themes, tabs, configMap, customThemeCount, customThemeKey, favCount, userFavorites }: {
+export function TabBar({ tab, onTab, activeTheme, themes, tabs, configMap, customThemeCount, customThemeKey, favCount, userFavorites, personalCount, communityCount }: {
   tab: string; onTab: (t: string) => void; activeTheme: string;
   themes: ThemeEntry[]; tabs: { key: string; label: string }[];
   configMap: Map<string, ThemeConfigLite>;
@@ -48,6 +48,8 @@ export function TabBar({ tab, onTab, activeTheme, themes, tabs, configMap, custo
   customThemeKey: string | null;
   favCount: number;
   userFavorites: Set<string>;
+  personalCount?: number;
+  communityCount?: number;
 }) {
   const activeCategory = (() => {
     if (customThemeKey) return CUSTOM_CATEGORY;
@@ -64,12 +66,18 @@ export function TabBar({ tab, onTab, activeTheme, themes, tabs, configMap, custo
         const isActive = tab === t.key;
         const isCustomTab = t.key === CUSTOM_CATEGORY;
         const isFavTab = t.key === FAV_TAB;
+        const isPersonalTab = t.key === PERSONAL_TAB;
+        const isCommunityTab = t.key === COMMUNITY_TAB;
         const count = t.key === 'all'
           ? themes.length + customThemeCount
           : isFavTab
           ? favCount
           : isCustomTab
           ? customThemeCount
+          : isPersonalTab
+          ? (personalCount ?? 0)
+          : isCommunityTab
+          ? (communityCount ?? 0)
           : themes.filter(th => {
               const cfg = configMap.get(th.value);
               const cat = cfg?.category || th.category;
@@ -79,13 +87,15 @@ export function TabBar({ tab, onTab, activeTheme, themes, tabs, configMap, custo
           || t.key === activeCategory
           || (t.key === 'glass' && activeTheme === 'glass')
           || (isFavTab && activeIsFavorite);
-        if (t.key !== 'all' && !isCustomTab && !isFavTab && t.key !== 'glass' && count === 0) return null;
+        if (t.key !== 'all' && !isCustomTab && !isFavTab && !isPersonalTab && !isCommunityTab && t.key !== 'glass' && count === 0) return null;
 
-        const accentColor = isCustomTab || isFavTab ? '#f59e0b' : '#3b82f6';
+        const accentColor = isCustomTab || isFavTab || isPersonalTab ? '#f59e0b' : isCommunityTab ? '#22d3ee' : '#3b82f6';
         return (
           <button key={t.key} onClick={() => onTab(t.key)} className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-bold transition-all whitespace-nowrap flex-shrink-0" style={{ background: isActive ? `${accentColor}1f` : 'transparent', border: isActive ? `1px solid ${accentColor}40` : '1px solid transparent', color: isActive ? accentColor : 'rgba(255,255,255,0.40)', boxShadow: isActive ? `0 2px 12px ${accentColor}10` : 'none' }}>
             {isFavTab && <Star className="w-3 h-3" />}
             {isCustomTab && <Paintbrush className="w-3 h-3" />}
+            {isPersonalTab && <Paintbrush className="w-3 h-3" />}
+            {isCommunityTab && <Share2 className="w-3 h-3" />}
             {t.key === 'glass' && <Layers className="w-3 h-3" />}
             {t.key === 'premium' && <Sparkles className="w-3 h-3" />}
             {t.label}
@@ -100,9 +110,9 @@ export function TabBar({ tab, onTab, activeTheme, themes, tabs, configMap, custo
   );
 }
 
-export function CustomThemeCard({ ct, active, onSelect, isFavorite, onToggleFavorite }: {
+export function CustomThemeCard({ ct, active, onSelect, isFavorite, onToggleFavorite, isShared }: {
   ct: CustomThemeRow; active: boolean; onSelect: () => void;
-  isFavorite?: boolean; onToggleFavorite?: () => void;
+  isFavorite?: boolean; onToggleFavorite?: () => void; isShared?: boolean;
 }) {
   const tokens = ct.theme_tokens;
   const z1 = tokens?.zone_css?.zone1;
@@ -127,9 +137,9 @@ export function CustomThemeCard({ ct, active, onSelect, isFavorite, onToggleFavo
         </div>
       )}
 
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b' }}>
-        <Paintbrush className="w-2.5 h-2.5" />
-        Personnalise
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider" style={{ background: isShared ? 'rgba(34,211,238,0.12)' : 'rgba(245,158,11,0.12)', border: isShared ? '1px solid rgba(34,211,238,0.25)' : '1px solid rgba(245,158,11,0.25)', color: isShared ? '#22d3ee' : '#f59e0b' }}>
+        {isShared ? <Share2 className="w-2.5 h-2.5" /> : <Paintbrush className="w-2.5 h-2.5" />}
+        {isShared ? 'Communaute' : 'Personnel'}
       </div>
 
       <div className="p-3 pb-0 sm:p-4 sm:pb-0">

@@ -13,10 +13,12 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onSaved?: () => void;
+  ownerUserId?: string | null;
+  ownerCompanyId?: string | null;
 }
 
-export default function EditorSaveThemeModal({ open, onClose, onSaved }: Props) {
-  const { zoneOverrides, getOverridesWithPreview, getTextOverridesWithPreview, commitPreview, commitTextPreview, textOverrides, backgroundImage, backgroundImageZoom, backgroundImagePositionX, backgroundImagePositionY, editingThemeKey, clearEditingTheme, typographyOverrides, customPanelPalette, buttonOverrides, cardOverrides } = useEditorMode();
+export default function EditorSaveThemeModal({ open, onClose, onSaved, ownerUserId, ownerCompanyId }: Props) {
+  const { zoneOverrides, getOverridesWithPreview, getTextOverridesWithPreview, commitPreview, commitTextPreview, textOverrides, backgroundImage, backgroundImageZoom, backgroundImagePositionX, backgroundImagePositionY, backgroundImageFit, editingThemeKey, clearEditingTheme, typographyOverrides, customPanelPalette, buttonOverrides, cardOverrides } = useEditorMode();
   const t = useThemeTokens();
   const { theme: currentTheme } = useTheme();
   const vc = useVisualCustomizeSafe();
@@ -80,6 +82,7 @@ export default function EditorSaveThemeModal({ open, onClose, onSaved }: Props) 
       background_image_zoom: backgroundImageZoom !== 100 ? backgroundImageZoom : null,
       background_image_position_x: backgroundImagePositionX !== 0 ? backgroundImagePositionX : null,
       background_image_position_y: backgroundImagePositionY !== 0 ? backgroundImagePositionY : null,
+      background_image_fit: backgroundImageFit !== 'cover' ? backgroundImageFit : null,
       typography_overrides: (typographyOverrides.categoryFont || typographyOverrides.itemFont || typographyOverrides.rdrFont) ? typographyOverrides : null,
       panel_palette: customPanelPalette || null,
       button_overrides: Object.keys(buttonOverrides).length > 0 ? buttonOverrides : null,
@@ -131,6 +134,8 @@ export default function EditorSaveThemeModal({ open, onClose, onSaved }: Props) 
 
         const nextOrder = (maxOrder?.display_order ?? 0) + 1;
 
+        const resolvedOwnerId = ownerUserId ?? (await supabase.auth.getUser()).data.user?.id ?? null;
+
         const { error: insertError } = await supabase
           .from('theme_config')
           .insert({
@@ -145,6 +150,9 @@ export default function EditorSaveThemeModal({ open, onClose, onSaved }: Props) 
             theme_tokens: themeTokens,
             created_from_theme: currentTheme,
             description: description.trim(),
+            owner_user_id: resolvedOwnerId,
+            owner_company_id: ownerCompanyId ?? null,
+            is_shared: false,
           });
         if (insertError) throw insertError;
       }
